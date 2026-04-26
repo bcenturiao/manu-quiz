@@ -443,7 +443,7 @@ const nokMsgs = [
   { icon:"🌈", txt:"Não desanima! Você consegue!", hint:"Olha a resposta certa e siga em frente!" },
 ];
 
-let cur = 0, score = 0, answered = false;
+let cur = 0, score = 0, answered = false, failed = false;
 
 function startScreen() {
   document.getElementById('app').innerHTML = `
@@ -486,6 +486,7 @@ function render() {
     <div class="feedback" id="fb"><span class="feedback-icon" id="fb-icon"></span><div class="feedback-text"><div id="fb-msg"></div><div class="feedback-hint" id="fb-hint"></div></div></div>
     <button class="next-btn" id="nb" onclick="next()">${cur+1 < Q.length ? 'Próxima pergunta →' : 'Ver meu resultado! 🏆'}</button>`;
   answered = false;
+  failed = false;
 }
 
 function pick(i) {
@@ -497,9 +498,11 @@ function pick(i) {
   if (i === q.ans) {
     answered = true;
     document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
-    score++;
     document.getElementById('opt'+i).classList.add('correct');
-    document.getElementById('score-val').textContent = score;
+    if (!failed) {
+      score++;
+      document.getElementById('score-val').textContent = score;
+    }
     const m = okMsgs[Math.floor(Math.random()*okMsgs.length)];
     document.getElementById('fb-icon').textContent = m.icon;
     document.getElementById('fb-msg').textContent = m.txt;
@@ -511,6 +514,7 @@ function pick(i) {
     const btn = document.getElementById('opt'+i);
     btn.classList.add('wrong');
     btn.disabled = true;
+    failed = true;
     const m = nokMsgs[Math.floor(Math.random()*nokMsgs.length)];
     document.getElementById('fb-icon').textContent = m.icon;
     document.getElementById('fb-msg').textContent = m.txt;
