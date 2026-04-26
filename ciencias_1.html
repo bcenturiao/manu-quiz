@@ -385,6 +385,43 @@
     transition: background 0.2s, transform 0.15s;
   }
   .start-btn:hover { background: #15803d; transform: scale(1.02); }
+
+  /* touch: sem highlight e sem seleção de texto */
+  .opt-btn, .start-btn, .next-btn, .restart-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* touch: desativa hover com translate, usa active */
+  @media (hover: none) {
+    .opt-btn:hover:not(:disabled) {
+      transform: none;
+      border-color: var(--green);
+      background: var(--green-light);
+    }
+    .opt-btn:hover:not(:disabled) .opt-letter {
+      background: var(--green);
+      color: #fff;
+    }
+    .opt-btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+  }
+
+  /* telas pequenas */
+  @media (max-width: 400px) {
+    .wrapper { padding-top: 14px; }
+    .logo { font-size: 20px; }
+    .q-card { padding: 20px 16px 18px; }
+    .q-emoji-big { font-size: 52px; }
+    .q-text { font-size: 16px; }
+    .opt-btn { font-size: 15px; padding: 14px 16px; }
+    .opt-letter { width: 30px; height: 30px; font-size: 14px; }
+    .start-title { font-size: 26px; }
+    .start-btn { font-size: 20px; padding: 18px 32px; }
+    .next-btn { font-size: 19px; padding: 16px; }
+    .restart-btn { font-size: 19px; padding: 16px 28px; }
+  }
 </style>
 </head>
 <body>
