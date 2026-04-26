@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Difícil da Manu — Nível Expert!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #7c3aed;
+    --purple-dark: #5b21b6;
+    --purple-mid: #8b5cf6;
+    --purple-light: #ede9fe;
+    --orange: #ea580c;
+    --orange-light: #ffedd5;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --yellow-light: #fef9c3;
+    --blue-light: #dbeafe;
+    --pink-light: #fce7f3;
+    --bg: #faf5ff;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #ddd6fe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.45;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fed7aa;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--purple-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--orange); }
+  .score-pill {
+    background: var(--purple-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* difficulty badge */
+  .diff-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    padding: 4px 14px;
+    border-radius: 50px;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 14px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 14px;
+    background: linear-gradient(90deg, var(--purple), #a78bfa);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 600;
+    text-align: right;
+    margin-bottom: 20px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 28px 24px 24px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 18px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-category {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 14px;
+    border-radius: 50px;
+    margin-bottom: 16px;
+  }
+  .cat-locomocao       { background: var(--blue-light);   color: #1d4ed8; }
+  .cat-classificacao   { background: var(--purple-light);  color: #5b21b6; }
+  .cat-alimentacao     { background: var(--yellow-light);  color: #92400e; }
+  .cat-reproducao      { background: var(--pink-light);    color: #9f1239; }
+  .cat-caracteristicas { background: var(--green-light);   color: #14532d; }
+  .cat-comparacao      { background: var(--orange-light);  color: #9a3412; }
+
+  /* "CUIDADO!" banner for tricky questions */
+  .tricky-banner {
+    background: var(--orange-light);
+    border: 2px solid #fb923c;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #9a3412;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .q-emoji-big {
+    font-size: 72px;
+    display: block;
+    text-align: center;
+    margin-bottom: 16px;
+    animation: bounce 0.6s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes bounce {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .q-text {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.45;
+  }
+  .q-text em {
+    font-style: normal;
+    color: var(--orange);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 4px;
+  }
+
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--purple-mid);
+    background: var(--purple-light);
+    transform: translateX(4px) scale(1.01);
+    color: var(--purple-dark);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+
+  .opt-letter {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 17px;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) .opt-letter {
+    background: var(--purple-mid);
+    color: #fff;
+  }
+
+  .opt-btn.correct { background: var(--green-light); border-color: var(--green); animation: correctPop 0.4s cubic-bezier(.34,1.56,.64,1); }
+  .opt-btn.correct .opt-letter { background: var(--green); color: #fff; }
+  .opt-btn.wrong   { background: var(--red-light);   border-color: var(--red);   animation: shake 0.4s ease; }
+  .opt-btn.wrong .opt-letter { background: var(--red); color: #fff; }
+
+  @keyframes correctPop {
+    0%  { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100%{ transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100%{ transform: translateX(0); }
+    20%    { transform: translateX(-8px); }
+    40%    { transform: translateX(8px); }
+    60%    { transform: translateX(-6px); }
+    80%    { transform: translateX(6px); }
+  }
+  .opt-btn:disabled { cursor: default; }
+
+  .feedback {
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    font-size: 17px;
+    font-weight: 800;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    animation: popIn 0.3s ease;
+  }
+  .feedback.show { display: flex; }
+  .feedback.ok  { background: var(--green-light); color: #14532d; border: 2px solid #86efac; }
+  .feedback.nok { background: var(--red-light);   color: #991b1b; border: 2px solid #fca5a5; }
+  .feedback-icon { font-size: 28px; flex-shrink: 0; }
+  .feedback-text { line-height: 1.3; }
+  .feedback-hint { font-size: 13px; font-weight: 600; opacity: 0.8; margin-top: 3px; }
+
+  /* explanation box shown after correct */
+  .explanation {
+    background: var(--purple-light);
+    border: 2px solid #c4b5fd;
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--purple-dark);
+    margin-top: 10px;
+    display: none;
+    line-height: 1.5;
+    animation: popIn 0.3s ease;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { font-weight: 800; }
+
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: var(--purple-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 4px;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #4c1d95; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* result */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; animation: bounce 0.7s ease; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--purple-dark); margin-bottom: 6px; }
+  .result-sub   { font-size: 16px; color: var(--text-soft); font-weight: 600; margin-bottom: 20px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--purple-light);
+    border: 6px solid var(--purple-mid);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+  }
+  .result-score-ring .big   { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--purple-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 14px; color: var(--purple-dark); font-weight: 700; }
+  .stars-row { font-size: 36px; letter-spacing: 4px; margin-bottom: 20px; }
+  .result-msg { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--orange);
+    color: #fff; border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .restart-btn:hover { background: #c2410c; transform: scale(1.02); }
+
+  /* start */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; animation: bounce 0.7s ease; }
+  .start-title  { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--purple-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--orange); }
+  .start-sub    { font-size: 16px; color: var(--text-soft); font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+  .start-facts  { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .start-fact   { background: var(--orange-light); border-radius: var(--radius); padding: 10px 16px; font-size: 14px; font-weight: 700; color: #9a3412; }
+  .tip-box { background: var(--purple-light); border-radius: var(--radius); padding: 14px 18px; font-size: 14px; font-weight: 600; color: var(--purple-dark); margin-bottom: 24px; line-height: 1.5; border: 2px solid #c4b5fd; }
+  .start-btn {
+    background: var(--purple-dark); color: #fff; border: none;
+    border-radius: var(--radius); padding: 22px 40px;
+    font-family: 'Fredoka One', cursive; font-size: 24px;
+    cursor: pointer; width: 100%;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .start-btn:hover { background: #4c1d95; transform: scale(1.02); }
+
+  .confetti-star {
+    position: fixed;
+    font-size: 20px;
+    pointer-events: none;
+    animation: flyUp 1s ease forwards;
+    z-index: 999;
+  }
+  @keyframes flyUp {
+    from { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    to   { opacity: 0; transform: translateY(-100px) rotate(40deg) scale(0.3); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🔥</div>
+    <div class="score-pill" id="score-pill">
+      ⭐ <span id="score-val">0</span> pts
+    </div>
+  </div>
+
+  <div id="app"></div>
+
+</div>
+<script>
+const Q = [
+  {
+    cat:"classificacao", catLabel:"Classificação", e:"🤔", tricky:true,
+    q:"Qual desses animais <em>NÃO</em> é um mamífero?",
+    opts:["Golfinho","Morcego","Tubarão"], ans:2,
+    exp:"O tubarão é um <strong>peixe</strong>! O golfinho e o morcego são mamíferos — têm pelos e amamentam seus filhotes."
+  },
+  {
+    cat:"classificacao", catLabel:"Classificação", e:"🧐", tricky:true,
+    q:"Qual desses animais <em>NÃO</em> é um réptil?",
+    opts:["Cobra","Sapo","Lagarto"], ans:1,
+    exp:"O sapo é um <strong>anfíbio</strong>, não um réptil! Répteis têm pele seca e escamosa. O sapo tem pele úmida."
+  },
+  {
+    cat:"classificacao", catLabel:"Classificação", e:"🐧", tricky:false,
+    q:"O pinguim voa? A que grupo ele pertence?",
+    opts:["Mamífero — não voa","Ave — mesmo sem voar","Réptil — tem penas"], ans:1,
+    exp:"O pinguim é uma <strong>ave</strong>! Nem todas as aves voam. Pinguins têm penas e nadam muito bem."
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🐸🐊", tricky:true,
+    q:"O que diferencia o sapo do jacaré?",
+    opts:["Sapo é anfíbio, jacaré é réptil","Sapo é réptil, jacaré é anfíbio","Os dois são anfíbios"], ans:0,
+    exp:"O sapo é <strong>anfíbio</strong> (pele úmida, vive na água e na terra). O jacaré é <strong>réptil</strong> (pele seca e escamosa)."
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🫁", tricky:false,
+    q:"Os anfíbios respiram de quantas formas diferentes?",
+    opts:["Só pelos pulmões","Só pela pele","Pelos pulmões E pela pele"], ans:2,
+    exp:"Os anfíbios são especiais! Eles respiram pelos <strong>pulmões</strong> e também pela <strong>pele</strong> (que precisa ficar úmida)."
+  },
+  {
+    cat:"reproducao", catLabel:"Reprodução", e:"🐔🐬", tricky:true,
+    q:"A galinha e o golfinho se reproduzem da mesma forma?",
+    opts:["Sim, os dois botam ovos","Não — galinha bota ovos, golfinho tem filhote na barriga","Sim, os dois têm filhote na barriga"], ans:1,
+    exp:"A galinha é <strong>ovípara</strong> (bota ovos). O golfinho é <strong>vivíparo</strong> (o filhote nasce da barriga da mãe), pois é mamífero."
+  },
+  {
+    cat:"alimentacao", catLabel:"Alimentação", e:"🐻", tricky:false,
+    q:"O urso come mel, frutas E peixes. Como ele é classificado?",
+    opts:["Herbívoro","Carnívoro","Onívoro"], ans:2,
+    exp:"O urso é <strong>onívoro</strong>! Come tanto vegetais (mel, frutas) quanto animais (peixes). Onívoro = come de tudo!"
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🐟🐬", tricky:true,
+    q:"O peixe e o golfinho vivem na água. Qual a diferença entre eles?",
+    opts:["Nenhuma, os dois são peixes","O golfinho é mamífero, o peixe não","O peixe é mamífero, o golfinho não"], ans:1,
+    exp:"O golfinho é <strong>mamífero</strong>: tem pulmões, respira ar, amamenta seus filhotes. O peixe tem brânquias e é ovíparo."
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🦇", tricky:true,
+    q:"O morcego voa como as aves. Ele é uma ave?",
+    opts:["Sim, porque voa","Não, ele é um mamífero","Sim, porque tem asas"], ans:1,
+    exp:"Não! O morcego é <strong>mamífero</strong>. Tem pelos, amamenta os filhotes e respira pelos pulmões. Voar não o torna ave!"
+  },
+  {
+    cat:"locomocao", catLabel:"Locomoção", e:"🐊💧", tricky:false,
+    q:"O jacaré pode se locomover de duas formas. Quais são elas?",
+    opts:["Voa e nada","Rasteja e nada","Pula e rasteja"], ans:1,
+    exp:"O jacaré <strong>rasteja</strong> em terra e <strong>nada</strong> na água. É por isso que ele é classificado como aquático e terrestre!"
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🐍🦎", tricky:false,
+    q:"O que cobras e lagartos têm em comum?",
+    opts:["São anfíbios de pele úmida","São répteis de pele seca e escamosa","São mamíferos sem pelos"], ans:1,
+    exp:"Cobras e lagartos são <strong>répteis</strong>! Os dois têm pele seca com escamas e respiram pelos pulmões."
+  },
+  {
+    cat:"reproducao", catLabel:"Reprodução", e:"🦆🐕", tricky:true,
+    q:"O pato bota ovos. O cachorro tem filhotes na barriga. Como chamamos cada um?",
+    opts:["Pato: vivíparo / Cachorro: ovíparo","Pato: ovíparo / Cachorro: vivíparo","Os dois são ovíparos"], ans:1,
+    exp:"Pato = <strong>ovíparo</strong> (nasce do ovo). Cachorro = <strong>vivíparo</strong> (nasce da barriga da mãe). Fácil lembrar: ovo → ovíparo!"
+  },
+  {
+    cat:"alimentacao", catLabel:"Alimentação", e:"🦁🐘", tricky:false,
+    q:"O leão come só carne. O elefante come só plantas. Como cada um é classificado?",
+    opts:["Leão: onívoro / Elefante: carnívoro","Leão: carnívoro / Elefante: herbívoro","Os dois são herbívoros"], ans:1,
+    exp:"Leão = <strong>carnívoro</strong>. Elefante = <strong>herbívoro</strong>. Herbi vem de herbáceo (planta), carni vem de carne!"
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🐢🐸", tricky:true,
+    q:"Tartaruga e sapo vivem na água e na terra. Os dois são anfíbios?",
+    opts:["Sim, os dois são anfíbios","Não — tartaruga é réptil, sapo é anfíbio","Não — sapo é réptil, tartaruga é anfíbio"], ans:1,
+    exp:"A tartaruga é <strong>réptil</strong> (pele com escamas duras). O sapo é <strong>anfíbio</strong> (pele lisa e úmida). O habitat parecido engana!"
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🔬", tricky:false,
+    q:"Quais animais têm sangue quente (temperatura do corpo constante)?",
+    opts:["Peixes e répteis","Mamíferos e aves","Anfíbios e répteis"], ans:1,
+    exp:"<strong>Mamíferos e aves</strong> têm temperatura constante (sangue quente). Peixes, répteis e anfíbios variam com a temperatura do ambiente."
+  },
+  {
+    cat:"classificacao", catLabel:"Classificação", e:"🐋", tricky:true,
+    q:"A baleia é enorme e vive no mar. Ela é um peixe?",
+    opts:["Sim, é um peixe muito grande","Não, é um mamífero","Sim, porque respira na água"], ans:1,
+    exp:"A baleia é <strong>mamífero</strong>! Ela respira ar (sobe à superfície), amamenta seus filhotes e tem temperatura constante."
+  },
+  {
+    cat:"locomocao", catLabel:"Locomoção", e:"🐌", tricky:false,
+    q:"O caracol não tem pernas. Como ele se locomove?",
+    opts:["Rasteja usando o corpo","Nada na água","Pula com a concha"], ans:0,
+    exp:"O caracol <strong>rasteja</strong> usando um músculo chamado pé! Ele produz um líquido que ajuda a deslizar pelo chão."
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🦅🦇", tricky:true,
+    q:"A águia e o morcego voam. O que eles têm de diferente?",
+    opts:["Nada, os dois são aves","Águia é ave, morcego é mamífero","Morcego é ave, águia é mamífero"], ans:1,
+    exp:"<strong>Águia = ave</strong> (tem penas, bico, bota ovos). <strong>Morcego = mamífero</strong> (tem pelos, amamenta filhotes). Voar não define o grupo!"
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🌍", tricky:false,
+    q:"Como chamamos animais que vivem tanto na água quanto na terra?",
+    opts:["Terrestres","Aquáticos","Anfíbios"], ans:2,
+    exp:"<strong>Anfíbio</strong> vem do grego 'amphi' (dois) + 'bios' (vida). Literalmente significa 'vida dupla' — na água E na terra!"
+  },
+  {
+    cat:"alimentacao", catLabel:"Alimentação", e:"🎭", tricky:true,
+    q:"Um animal usa camuflagem para se parecer com uma folha. Por que ele faz isso?",
+    opts:["Para dormir melhor","Para se esconder de predadores e caçar","Para se refrescar no calor"], ans:1,
+    exp:"A <strong>camuflagem</strong> serve para duas coisas: se esconder dos predadores (defesa) e se aproximar das presas sem ser visto (caça)!"
+  },
+  {
+    cat:"reproducao", catLabel:"Reprodução", e:"🐊🥚", tricky:true,
+    q:"O jacaré bota ovos. Isso significa que ele é ovíparo. Mas ele é mamífero?",
+    opts:["Sim, todo ovíparo é mamífero","Não, ele é réptil ovíparo","Sim, porque cuida dos filhotes"], ans:1,
+    exp:"<strong>Não!</strong> O jacaré é <strong>réptil ovíparo</strong>. Ser ovíparo não quer dizer ser mamífero. Mamíferos são vivíparos e têm pelos."
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🌊🏔️", tricky:false,
+    q:"Um peixe e uma cobra vivem em ambientes diferentes. O que eles têm em comum?",
+    opts:["Os dois são vertebrados","Os dois são anfíbios","Os dois são mamíferos"], ans:0,
+    exp:"Os dois são <strong>vertebrados</strong>! Isso significa que têm coluna vertebral. Peixe e cobra são de grupos diferentes, mas ambos têm espinha dorsal."
+  },
+  {
+    cat:"caracteristicas", catLabel:"Características", e:"🐟🫧", tricky:false,
+    q:"Por que um peixe morre se ficar fora d'água por muito tempo?",
+    opts:["Porque sente frio","Porque as brânquias precisam de água para respirar","Porque tem medo do sol"], ans:1,
+    exp:"As <strong>brânquias</strong> (guelras) do peixe só funcionam na água. Elas retiram o oxigênio dissolvido na água. Fora dela, o peixe não consegue respirar!"
+  },
+  {
+    cat:"comparacao", catLabel:"Comparação", e:"🐕🐊", tricky:true,
+    q:"O cachorro e o jacaré têm escamas?",
+    opts:["Os dois têm escamas","Só o jacaré tem escamas — o cachorro tem pelos","Os dois têm pelos"], ans:1,
+    exp:"<strong>Jacaré = réptil</strong> → tem escamas. <strong>Cachorro = mamífero</strong> → tem pelos. Essa diferença ajuda a identificar o grupo do animal!"
+  },
+  {
+    cat:"classificacao", catLabel:"Classificação", e:"🌟", tricky:false,
+    q:"Quantos grupos de animais vertebrados existem?",
+    opts:["3 grupos","4 grupos","5 grupos"], ans:2,
+    exp:"São <strong>5 grupos</strong>: Peixes, Anfíbios, Répteis, Aves e Mamíferos. Todo animal com coluna vertebral pertence a um desses grupos!"
+  },
+];
+
+const okMsgs = [
+  { icon:"🔥", txt:"Você é expert! Acertou!", hint:"Essa era difícil e você foi bem!" },
+  { icon:"🧠", txt:"Cérebro de ouro! Certa!", hint:"Continue assim, você vai arrasar!" },
+  { icon:"⭐", txt:"Incrível! Resposta certa!", hint:"Estudou bem essa parte!" },
+  { icon:"🏆", txt:"Perfeito! Você arrasou!", hint:"Que orgulho, Manu!" },
+];
+const nokMsgs = [
+  { icon:"💪", txt:"Quase! Tente de novo!", hint:"" },
+  { icon:"🤔", txt:"Hmm... não foi essa!", hint:"" },
+  { icon:"📚", txt:"Ops! Pensa mais um pouco!", hint:"" },
+];
+
+let cur = 0, score = 0, answered = false;
+
+function startScreen() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🔥</span>
+      <div class="start-title">Nível <span>Expert!</span></div>
+      <div class="start-sub">Agora as perguntas são mais difíceis!<br>Leia com atenção antes de responder.</div>
+      <div class="start-facts">
+        <div class="start-fact">🧠 25 perguntas difíceis</div>
+        <div class="start-fact">⚠️ Pegadinhas!</div>
+        <div class="start-fact">💡 Explicações</div>
+      </div>
+      <div class="tip-box">
+        💡 <strong>Dica:</strong> Algumas perguntas têm a palavra <span style="color:var(--orange);font-weight:800">NÃO</span> — leia com muito cuidado antes de responder!
+      </div>
+      <button class="start-btn" onclick="startQuiz()">Aceitar o desafio! 🚀</button>
+    </div>`;
+}
+
+function startQuiz() { cur = 0; score = 0; render(); }
+
+function render() {
+  if (cur >= Q.length) { showResult(); return; }
+  const q = Q[cur];
+  const pct = Math.round((cur / Q.length) * 100);
+  document.getElementById('score-val').textContent = score;
+  const letters = ['A','B','C'];
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Pergunta ${cur+1} de ${Q.length}</div>
+    <div class="q-card">
+      ${q.tricky ? `<div class="tricky-banner">⚠️ Atenção! Leia a pergunta com cuidado!</div>` : ''}
+      <span class="q-category cat-${q.cat}">${q.catLabel}</span>
+      <span class="q-emoji-big">${q.e}</span>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="options" id="opts">
+      ${q.opts.map((o,i)=>`
+        <button class="opt-btn" id="opt${i}" onclick="pick(${i})">
+          <span class="opt-letter">${letters[i]}</span>
+          ${o}
+        </button>`).join('')}
+    </div>
+    <div class="feedback" id="fb">
+      <span class="feedback-icon" id="fb-icon"></span>
+      <div class="feedback-text"><div id="fb-msg"></div><div class="feedback-hint" id="fb-hint"></div></div>
+    </div>
+    <div class="explanation" id="exp"></div>
+    <button class="next-btn" id="nb" onclick="next()">${cur+1 < Q.length ? 'Próxima pergunta →' : 'Ver meu resultado! 🏆'}</button>`;
+  answered = false;
+}
+
+function pick(i) {
+  if (answered) return;
+  const q = Q[cur];
+  const fb  = document.getElementById('fb');
+  const nb  = document.getElementById('nb');
+  const exp = document.getElementById('exp');
+
+  if (i === q.ans) {
+    answered = true;
+    document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+    score++;
+    document.getElementById('opt'+i).classList.add('correct');
+    document.getElementById('score-val').textContent = score;
+    const m = okMsgs[Math.floor(Math.random()*okMsgs.length)];
+    document.getElementById('fb-icon').textContent = m.icon;
+    document.getElementById('fb-msg').textContent  = m.txt;
+    document.getElementById('fb-hint').textContent = m.hint;
+    fb.className = 'feedback show ok';
+    if (q.exp) { exp.innerHTML = '💡 ' + q.exp; exp.className = 'explanation show'; }
+    nb.className = 'next-btn show';
+    spawnStars();
+  } else {
+    const btn = document.getElementById('opt'+i);
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    const m = nokMsgs[Math.floor(Math.random()*nokMsgs.length)];
+    document.getElementById('fb-icon').textContent = m.icon;
+    document.getElementById('fb-msg').textContent  = m.txt;
+    document.getElementById('fb-hint').textContent = 'Tente outra opção! Você consegue! 👇';
+    fb.className = 'feedback show nok';
+  }
+}
+
+function next() { cur++; render(); }
+
+function spawnStars() {
+  const emojis = ['⭐','🌟','✨','🔥','💡'];
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      const s = document.createElement('span');
+      s.className = 'confetti-star';
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      s.style.left = (15 + Math.random()*70) + '%';
+      s.style.top  = (20 + Math.random()*40) + '%';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1000);
+    }, i * 90);
+  }
+}
+
+function showResult() {
+  const pct = Math.round((score / Q.length) * 100);
+  let trophy, title, msg, starsCount;
+  if (pct >= 88)      { trophy='🏆'; title='Expert dos Animais!';           msg='Uau! Você dominou até as perguntas mais difíceis! Nota 10 na prova!'; starsCount=5; }
+  else if (pct >= 72) { trophy='🌟'; title='Quase expert, Manu!';           msg='Muito bem! Mais um pouquinho de estudo e você chega lá!';             starsCount=4; }
+  else if (pct >= 56) { trophy='🧠'; title='Bom raciocínio!';               msg='Você está evoluindo! Revise as pegadinhas e tente de novo!';          starsCount=3; }
+  else if (pct >= 40) { trophy='💪'; title='Bom esforço!';                  msg='Esse era difícil mesmo! Revise o conteúdo e tente de novo.';          starsCount=2; }
+  else                { trophy='📚'; title='Vamos estudar mais!';            msg='Não desanima! Faça o quiz fácil primeiro e volte aqui!';              starsCount=1; }
+  const stars = '⭐'.repeat(starsCount) + '☆'.repeat(5-starsCount);
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">${trophy}</span>
+      <div class="result-title">${title}</div>
+      <div class="result-sub">Nível Expert concluído!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">de ${Q.length} pontos</span>
+      </div>
+      <div class="stars-row">${stars}</div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startQuiz()">🔄 Tentar de novo!</button>
+    </div>`;
+  document.getElementById('score-val').textContent = score;
+}
+
+startScreen();
+</script>
+</body>
+</html>
