@@ -391,6 +391,46 @@
     from { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
     to   { opacity: 0; transform: translateY(-100px) rotate(40deg) scale(0.3); }
   }
+
+  /* touch: sem highlight e sem seleção de texto */
+  .opt-btn, .start-btn, .next-btn, .restart-btn {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  /* touch: desativa hover com translate, usa active */
+  @media (hover: none) {
+    .opt-btn:hover:not(:disabled) {
+      transform: none;
+      border-color: var(--purple-mid);
+      background: var(--purple-light);
+      color: var(--purple-dark);
+    }
+    .opt-btn:hover:not(:disabled) .opt-letter {
+      background: var(--purple-mid);
+      color: #fff;
+    }
+    .opt-btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+  }
+
+  /* telas pequenas */
+  @media (max-width: 400px) {
+    .wrapper { padding-top: 14px; }
+    .logo { font-size: 20px; }
+    .q-card { padding: 20px 16px 18px; }
+    .q-emoji-big { font-size: 52px; }
+    .q-text { font-size: 16px; }
+    .opt-btn { font-size: 15px; padding: 14px 16px; }
+    .opt-letter { width: 30px; height: 30px; font-size: 14px; }
+    .start-title { font-size: 26px; }
+    .start-btn { font-size: 20px; padding: 18px 32px; }
+    .next-btn { font-size: 19px; padding: 16px; }
+    .restart-btn { font-size: 19px; padding: 16px 28px; }
+    .tricky-banner { font-size: 12px; padding: 8px 12px; }
+    .explanation { font-size: 13px; padding: 12px 14px; }
+  }
 </style>
 </head>
 <body>
