@@ -159,6 +159,22 @@
     text-align: center;
     line-height: 1.4;
   }
+  .col-block {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: inline-block;
+    text-align: right;
+    line-height: 1.7;
+    margin: 8px 0 16px;
+    letter-spacing: 1px;
+    white-space: pre;
+  }
+  .col-block .col-line { border-top: 2px solid var(--text); margin: 4px 0; }
 
   /* ---- OPTIONS ---- */
   .options {
@@ -436,21 +452,21 @@
 
 <script>
 const Q = [
-  { cat:"contas",  catLabel:"Contas",       e:"➕", q:"35 + 48 = ?",                                                              opts:["73","83","93"],                       ans:1 },
-  { cat:"contas",  catLabel:"Contas",       e:"➖", q:"92 − 37 = ?",                                                              opts:["45","55","65"],                       ans:1 },
-  { cat:"contas",  catLabel:"Contas",       e:"✖️", q:"6 × 7 = ?",                                                               opts:["42","48","36"],                       ans:0 },
-  { cat:"contas",  catLabel:"Contas",       e:"➗", q:"24 ÷ 4 = ?",                                                              opts:["4","6","8"],                          ans:1 },
-  { cat:"problema",catLabel:"Problema",     e:"🍬", q:"Maria tinha 24 balas e ganhou mais 15. Quantas ela tem agora?",            opts:["29","39","49"],                       ans:1 },
-  { cat:"problema",catLabel:"Problema",     e:"🖼️", q:"Pedro tinha 50 figurinhas e deu 18 para um amigo. Quantas sobram?",      opts:["22","32","42"],                       ans:1 },
-  { cat:"problema",catLabel:"Problema",     e:"🍊", q:"Uma caixa tem 6 laranjas. Quantas laranjas têm 4 caixas?",               opts:["20","24","18"],                       ans:1 },
-  { cat:"problema",catLabel:"Problema",     e:"🍫", q:"30 chocolates divididos entre 5 crianças. Quantos cada um recebe?",      opts:["5","6","7"],                          ans:1 },
-  { cat:"termos",  catLabel:"Termos",       e:"📐", q:"Na adição, o resultado da conta se chama:",                              opts:["soma","diferença","produto"],         ans:0 },
-  { cat:"termos",  catLabel:"Termos",       e:"📏", q:"Na subtração, o resultado da conta se chama:",                           opts:["soma","diferença","quociente"],       ans:1 },
-  { cat:"termos",  catLabel:"Termos",       e:"🔣", q:"Na multiplicação, o resultado da conta se chama:",                       opts:["produto","soma","quociente"],         ans:0 },
-  { cat:"dobro",   catLabel:"Dobro/Metade", e:"✌️", q:"O dobro de 9 é:",                                                        opts:["16","18","12"],                       ans:1 },
-  { cat:"dobro",   catLabel:"Dobro/Metade", e:"🔺", q:"O triplo de 4 é:",                                                       opts:["8","12","16"],                        ans:1 },
-  { cat:"dobro",   catLabel:"Dobro/Metade", e:"✂️", q:"A metade de 20 é:",                                                      opts:["5","10","15"],                        ans:1 },
-  { cat:"dobro",   catLabel:"Dobro/Metade", e:"⬆️", q:"O dobro de 15 é:",                                                       opts:["25","30","35"],                       ans:1 },
+  { cat:"contas",  catLabel:"Contas",       e:"➕", q:"Quanto é 35 + 48?",                                                             col:{a:"35", op:"+",  b:"48"}, opts:["73","83","93"],                       ans:1 },
+  { cat:"contas",  catLabel:"Contas",       e:"➖", q:"Quanto é 92 − 37?",                                                             col:{a:"92", op:"−",  b:"37"}, opts:["45","55","65"],                       ans:1 },
+  { cat:"contas",  catLabel:"Contas",       e:"✖️", q:"Quanto é 6 × 7?",                                                              col:{a:"6",  op:"×",  b:"7"},  opts:["42","48","36"],                       ans:0 },
+  { cat:"contas",  catLabel:"Contas",       e:"➗", q:"Quanto é 24 ÷ 4?",                                                             col:{a:"24", op:"÷",  b:"4"},  opts:["4","6","8"],                          ans:1 },
+  { cat:"problema",catLabel:"Problema",     e:"🍬", q:"Maria tinha 24 balas e ganhou mais 15. Quantas ela tem agora?",                 col:{a:"24", op:"+",  b:"15"}, opts:["29","39","49"],                       ans:1 },
+  { cat:"problema",catLabel:"Problema",     e:"🖼️", q:"Pedro tinha 50 figurinhas e deu 18 para um amigo. Quantas sobram?",           col:{a:"50", op:"−",  b:"18"}, opts:["22","32","42"],                       ans:1 },
+  { cat:"problema",catLabel:"Problema",     e:"🍊", q:"Uma caixa tem 6 laranjas. Quantas laranjas têm 4 caixas?",                    col:{a:"6",  op:"×",  b:"4"},  opts:["20","24","18"],                       ans:1 },
+  { cat:"problema",catLabel:"Problema",     e:"🍫", q:"30 chocolates divididos entre 5 crianças. Quantos cada um recebe?",           col:{a:"30", op:"÷",  b:"5"},  opts:["5","6","7"],                          ans:1 },
+  { cat:"termos",  catLabel:"Termos",       e:"📐", q:"Na adição, o resultado da conta se chama:",                                   opts:["soma","diferença","produto"],         ans:0 },
+  { cat:"termos",  catLabel:"Termos",       e:"📏", q:"Na subtração, o resultado da conta se chama:",                                opts:["soma","diferença","quociente"],       ans:1 },
+  { cat:"termos",  catLabel:"Termos",       e:"🔣", q:"Na multiplicação, o resultado da conta se chama:",                            opts:["produto","soma","quociente"],         ans:0 },
+  { cat:"dobro",   catLabel:"Dobro/Metade", e:"✌️", q:"O dobro de 9 é:",                                                             opts:["16","18","12"],                       ans:1 },
+  { cat:"dobro",   catLabel:"Dobro/Metade", e:"🔺", q:"O triplo de 4 é:",                                                            opts:["8","12","16"],                        ans:1 },
+  { cat:"dobro",   catLabel:"Dobro/Metade", e:"✂️", q:"A metade de 20 é:",                                                           opts:["5","10","15"],                        ans:1 },
+  { cat:"dobro",   catLabel:"Dobro/Metade", e:"⬆️", q:"O dobro de 15 é:",                                                            opts:["25","30","35"],                       ans:1 },
 ];
 
 const okMsgs = [
@@ -484,6 +500,12 @@ function startScreen() {
 
 function startQuiz() { cur = 0; score = 0; render(); }
 
+function renderCol(col) {
+  const w = Math.max(col.a.length, col.b.length) + 2;
+  const pad = (s, n) => s.padStart(n);
+  return `<div class="col-block">${pad(col.a, w)}\n${pad(col.op + ' ' + col.b, w)}\n<div class="col-line"></div>${pad('?', w)}</div>`;
+}
+
 function render() {
   if (cur >= Q.length) { showResult(); return; }
   const q = Q[cur];
@@ -497,6 +519,7 @@ function render() {
       <span class="q-category cat-${q.cat}">${q.catLabel}</span>
       <span class="q-emoji-big">${q.e}</span>
       <div class="q-text">${q.q}</div>
+      ${q.col ? `<div style="text-align:center">${renderCol(q.col)}</div>` : ''}
     </div>
     <div class="options" id="opts">
       ${q.opts.map((o,i) => `
