@@ -503,7 +503,7 @@ function startQuiz() { cur = 0; score = 0; render(); }
 function renderCol(col) {
   const w = Math.max(col.a.length, col.b.length) + 2;
   const pad = (s, n) => s.padStart(n);
-  return `<div class="col-block">${pad(col.a, w)}\n${pad(col.op + ' ' + col.b, w)}\n<div class="col-line"></div>${pad('?', w)}</div>`;
+  return `<div class="col-block">${pad(col.a, w)}\n${pad(col.op + ' ' + col.b, w)}\n<div class="col-line"></div>\n${pad('?', w)}</div>`;
 }
 
 function render() {
