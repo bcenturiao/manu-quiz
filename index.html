@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManuQuiz — 1º Trimestre</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #dcfce7;
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --blue-light: #dbeafe;
+    --orange: #f97316;
+    --orange-dark: #ea580c;
+    --orange-light: #ffedd5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.45;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #bfdbfe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.35;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+  }
+
+  /* ---- HEADER ---- */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 38px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .logo span { color: var(--orange); }
+  .trimestre-badge {
+    display: inline-block;
+    background: #fef9c3;
+    color: #854d0e;
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    padding: 6px 20px;
+    border-radius: 50px;
+    margin-bottom: 10px;
+  }
+  .header-sub {
+    font-size: 15px;
+    color: var(--text-soft);
+    font-weight: 600;
+  }
+
+  /* ---- SUBJECT SECTION ---- */
+  .subject {
+    margin-bottom: 28px;
+  }
+  .subject-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .subject-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .subject-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--text);
+  }
+
+  /* ---- QUIZ CARD ---- */
+  .quiz-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 3px solid #e5e7eb;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-decoration: none;
+    color: var(--text);
+    margin-bottom: 12px;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .quiz-card:hover {
+    transform: translateX(4px) scale(1.01);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .quiz-card:active {
+    transform: scale(0.98);
+  }
+
+  .quiz-emoji {
+    font-size: 40px;
+    flex-shrink: 0;
+    width: 56px;
+    text-align: center;
+  }
+  .quiz-info { flex: 1; }
+  .quiz-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 19px;
+    line-height: 1.2;
+    margin-bottom: 3px;
+  }
+  .quiz-meta {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 600;
+  }
+  .quiz-arrow {
+    font-size: 20px;
+    color: #d1d5db;
+    flex-shrink: 0;
+  }
+
+  /* color variants */
+  .quiz-card.green:hover  { border-color: var(--green); }
+  .quiz-card.green .quiz-name { color: var(--green-dark); }
+
+  .quiz-card.blue:hover   { border-color: var(--blue); }
+  .quiz-card.blue .quiz-name  { color: var(--blue-dark); }
+
+  .quiz-card.orange:hover { border-color: var(--orange); }
+  .quiz-card.orange .quiz-name { color: var(--orange-dark); }
+
+  .subject-dot.green  { background: var(--green); }
+  .subject-dot.blue   { background: var(--blue); }
+  .subject-dot.orange { background: var(--orange); }
+
+  @media (hover: none) {
+    .quiz-card:hover { transform: none; box-shadow: none; }
+    .quiz-card:active { transform: scale(0.97); }
+  }
+
+  @media (max-width: 400px) {
+    .logo { font-size: 30px; }
+    .quiz-emoji { font-size: 32px; width: 44px; }
+    .quiz-name { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="logo">Manu<span>Quiz</span> 🌟</div>
+    <div class="trimestre-badge">📅 1º Trimestre — 3ª série</div>
+    <div class="header-sub">Escola Érico Veríssimo</div>
+  </div>
+
+  <!-- CIÊNCIAS -->
+  <div class="subject">
+    <div class="subject-header">
+      <div class="subject-dot green"></div>
+      <div class="subject-title">Ciências</div>
+    </div>
+    <a href="ciencias_1.html" class="quiz-card green">
+      <div class="quiz-emoji">🐾</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Animais</div>
+        <div class="quiz-meta">25 perguntas · locomoção, classificação, reprodução</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+    <a href="ciencias_2.html" class="quiz-card green">
+      <div class="quiz-emoji">🔥</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Nível Expert</div>
+        <div class="quiz-meta">25 perguntas · perguntas mais difíceis</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+  </div>
+
+  <!-- MATEMÁTICA -->
+  <div class="subject">
+    <div class="subject-header">
+      <div class="subject-dot blue"></div>
+      <div class="subject-title">Matemática</div>
+    </div>
+    <a href="matematica_1.html" class="quiz-card blue">
+      <div class="quiz-emoji">🔢</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Números</div>
+        <div class="quiz-meta">14 perguntas · comparação, decomposição, ordinais</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+    <a href="matematica_2.html" class="quiz-card blue">
+      <div class="quiz-emoji">➕</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Operações</div>
+        <div class="quiz-meta">15 perguntas · contas, problemas, dobro e metade</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+    <a href="matematica_3.html" class="quiz-card blue">
+      <div class="quiz-emoji">🌟</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Especial</div>
+        <div class="quiz-meta">14 perguntas · sólidos, tempo, frações, dinheiro</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+  </div>
+
+  <!-- ESTUDOS SOCIAIS -->
+  <div class="subject">
+    <div class="subject-header">
+      <div class="subject-dot orange"></div>
+      <div class="subject-title">Estudos Sociais</div>
+    </div>
+    <a href="estudos_sociais_1.html" class="quiz-card orange">
+      <div class="quiz-emoji">🗺️</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Localização e História</div>
+        <div class="quiz-meta">25 perguntas · Pelotas, clima, charque, zonas</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+    <a href="estudos_sociais_2.html" class="quiz-card orange">
+      <div class="quiz-emoji">🏙️</div>
+      <div class="quiz-info">
+        <div class="quiz-name">Cidade e Cultura</div>
+        <div class="quiz-meta">25 perguntas · bairros, símbolos, economia, vizinhos</div>
+      </div>
+      <div class="quiz-arrow">›</div>
+    </a>
+  </div>
+
+</div>
+</body>
+</html>
