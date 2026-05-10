@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Inglês: Dias da Semana (Nível 1)!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #db2777;
+    --pink-dark: #be185d;
+    --pink-light: #fce7f3;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Verdana, Geneva, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #fce7f3;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--pink-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--pink); }
+  .level-badge {
+    background: var(--pink-light);
+    color: var(--pink-dark);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 50px;
+  }
+
+  .game-area {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .ws-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 36px);
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .ws-cell {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s, border-color 0.1s;
+  }
+  .ws-cell.selected { background: var(--pink-light); border-color: var(--pink); color: var(--pink-dark); }
+  .ws-cell.path     { background: #fbcfe8; border-color: #f9a8d4; color: #9d174d; }
+  .ws-cell.found    { background: var(--pink); border-color: var(--pink-dark); color: #fff; cursor: default; }
+  .ws-cell.wrong    { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+
+  .word-list { display: flex; flex-direction: column; gap: 8px; min-width: 150px; }
+  .word-list-title { font-size: 11px; font-weight: 700; color: #9d174d; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .word-chip {
+    padding: 7px 14px;
+    border-radius: 50px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    border: 2px solid var(--pink-light);
+    color: var(--pink-dark);
+    background: var(--pink-light);
+    transition: all 0.3s;
+  }
+  .word-chip.found { background: var(--pink); border-color: var(--pink-dark); color: #fff; text-decoration: line-through; opacity: 0.55; }
+
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--pink-dark); margin-bottom: 8px; }
+  .result-sub { font-size: 15px; color: var(--text-soft); margin-bottom: 28px; font-weight: 600; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .restart-btn {
+    background: var(--pink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover  { background: var(--pink-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--pink-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--pink); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; }
+  .start-btn {
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover  { background: #9d174d; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 520px) {
+    .game-area { flex-direction: column; }
+    .ws-grid { grid-template-columns: repeat(12, 26px); gap: 2px; }
+    .ws-cell { width: 26px; height: 26px; font-size: 10px; border-radius: 5px; }
+    .word-list { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .word-chip { font-size: 11px; padding: 5px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🇬🇧</div>
+    <div class="level-badge">Nível 1 — ↔ ↕</div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const WORDS = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
+const SIZE = 12;
+const LEVEL = 1;
+const DIRS = {
+  1: [[0,1],[1,0]],
+  2: [[0,1],[1,0],[1,1],[1,-1]],
+  3: [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]
+};
+
+let grid = [], found = new Set(), firstCell = null;
+
+function generateGrid() {
+  const dirs = DIRS[LEVEL];
+  for (let attempt = 0; attempt < 200; attempt++) {
+    const g = Array.from({length: SIZE}, () => Array(SIZE).fill(null));
+    const shuffled = [...WORDS].sort(() => Math.random() - 0.5);
+    let ok = true;
+    for (const word of shuffled) {
+      if (!tryPlace(g, word, dirs)) { ok = false; break; }
+    }
+    if (ok) {
+      const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      for (let r = 0; r < SIZE; r++)
+        for (let c = 0; c < SIZE; c++)
+          if (!g[r][c]) g[r][c] = alpha[Math.floor(Math.random() * 26)];
+      return g;
+    }
+  }
+  throw new Error('Grid generation failed');
+}
+
+function tryPlace(g, word, dirs) {
+  const shuffledDirs = [...dirs].sort(() => Math.random() - 0.5);
+  for (const [dr, dc] of shuffledDirs) {
+    const positions = [];
+    for (let r = 0; r < SIZE; r++)
+      for (let c = 0; c < SIZE; c++) {
+        const er = r + dr * (word.length - 1);
+        const ec = c + dc * (word.length - 1);
+        if (er >= 0 && er < SIZE && ec >= 0 && ec < SIZE) positions.push([r, c]);
+      }
+    positions.sort(() => Math.random() - 0.5);
+    for (const [r, c] of positions) {
+      if (canPlace(g, word, r, c, dr, dc)) { place(g, word, r, c, dr, dc); return true; }
+    }
+  }
+  return false;
+}
+
+function canPlace(g, word, r, c, dr, dc) {
+  for (let i = 0; i < word.length; i++) {
+    const v = g[r + dr*i][c + dc*i];
+    if (v !== null && v !== word[i]) return false;
+  }
+  return true;
+}
+
+function place(g, word, r, c, dr, dc) {
+  for (let i = 0; i < word.length; i++) g[r + dr*i][c + dc*i] = word[i];
+}
+
+function getDir(r1, c1, r2, c2) {
+  const dr = r2 - r1, dc = c2 - c1;
+  const len = Math.max(Math.abs(dr), Math.abs(dc));
+  if (len === 0) return null;
+  if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return null;
+  return [dr / len, dc / len, len];
+}
+
+function isAllowedDir(dr, dc) {
+  return DIRS[LEVEL].some(([r, c]) => r === dr && c === dc);
+}
+
+function getCells(r1, c1, dr, dc, len) {
+  const cells = [];
+  for (let i = 0; i <= len; i++) cells.push([r1 + dr*i, c1 + dc*i]);
+  return cells;
+}
+
+function cellId(r, c) { return r * SIZE + c; }
+
+function clearPathCells() {
+  document.querySelectorAll('.ws-cell.path').forEach(el => el.classList.remove('path'));
+}
+
+function handleCellClick(r, c) {
+  const el = document.getElementById('cell-' + cellId(r, c));
+  if (el.classList.contains('found')) return;
+
+  if (!firstCell) {
+    firstCell = {r, c};
+    el.classList.add('selected');
+    return;
+  }
+
+  if (firstCell.r === r && firstCell.c === c) {
+    el.classList.remove('selected');
+    firstCell = null;
+    clearPathCells();
+    return;
+  }
+
+  const dirResult = getDir(firstCell.r, firstCell.c, r, c);
+  clearPathCells();
+  document.getElementById('cell-' + cellId(firstCell.r, firstCell.c)).classList.remove('selected');
+
+  if (!dirResult || !isAllowedDir(dirResult[0], dirResult[1])) {
+    firstCell = null;
+    return;
+  }
+
+  const [dr, dc, len] = dirResult;
+  const cells = getCells(firstCell.r, firstCell.c, dr, dc, len);
+  const word = cells.map(([cr, cc]) => grid[cr][cc]).join('');
+  firstCell = null;
+
+  if (WORDS.includes(word) && !found.has(word)) {
+    found.add(word);
+    cells.forEach(([cr, cc]) => {
+      const cel = document.getElementById('cell-' + cellId(cr, cc));
+      cel.classList.remove('path', 'selected');
+      cel.classList.add('found');
+    });
+    document.getElementById('chip-' + word).classList.add('found');
+    if (found.size === WORDS.length) setTimeout(showResult, 600);
+  } else {
+    cells.forEach(([cr, cc]) => {
+      const cel = document.getElementById('cell-' + cellId(cr, cc));
+      cel.classList.add('wrong');
+      setTimeout(() => cel.classList.remove('wrong'), 450);
+    });
+  }
+}
+
+function handleCellHover(r, c) {
+  if (!firstCell) return;
+  clearPathCells();
+  const dirResult = getDir(firstCell.r, firstCell.c, r, c);
+  if (!dirResult) return;
+  const [dr, dc, len] = dirResult;
+  if (!isAllowedDir(dr, dc)) return;
+  getCells(firstCell.r, firstCell.c, dr, dc, len).slice(1).forEach(([cr, cc]) => {
+    const cel = document.getElementById('cell-' + cellId(cr, cc));
+    if (!cel.classList.contains('found')) cel.classList.add('path');
+  });
+}
+
+function startScreen() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🇬🇧</span>
+      <div class="start-title">Quiz da <span>Manu!</span></div>
+      <div class="start-sub">Encontre os dias da semana em inglês —<br>horizontal e vertical!</div>
+      <div class="start-facts">
+        <div class="start-fact">🔤 7 palavras</div>
+        <div class="start-fact">↔ Horizontal e vertical</div>
+        <div class="start-fact">🎓 Dias da semana</div>
+      </div>
+      <button class="start-btn" onclick="startGame()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+function startGame() {
+  found = new Set();
+  firstCell = null;
+  grid = generateGrid();
+  const cells = grid.map((row, r) =>
+    row.map((letter, c) =>
+      `<div class="ws-cell" id="cell-${cellId(r,c)}" onclick="handleCellClick(${r},${c})" onmouseenter="handleCellHover(${r},${c})">${letter}</div>`
+    ).join('')
+  ).join('');
+  const chips = WORDS.map(w => `<div class="word-chip" id="chip-${w}">${w}</div>`).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="game-area">
+      <div class="ws-grid">${cells}</div>
+      <div class="word-list">
+        <div class="word-list-title">Encontre:</div>
+        ${chips}
+      </div>
+    </div>`;
+}
+
+function showResult() {
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você encontrou tudo!</div>
+      <div class="result-sub">Você conhece os dias da semana em inglês!</div>
+      <button class="restart-btn" onclick="startGame()">🔄 Jogar de novo!</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
