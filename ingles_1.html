@@ -321,6 +321,7 @@ function handleCellClick(r, c) {
     return;
   }
 
+  if (el.classList.contains('found')) { document.getElementById('cell-' + cellId(firstCell.r, firstCell.c)).classList.remove('selected'); clearPathCells(); firstCell = null; return; }
   const dirResult = getDir(firstCell.r, firstCell.c, r, c);
   clearPathCells();
   document.getElementById('cell-' + cellId(firstCell.r, firstCell.c)).classList.remove('selected');
@@ -347,8 +348,10 @@ function handleCellClick(r, c) {
   } else {
     cells.forEach(([cr, cc]) => {
       const cel = document.getElementById('cell-' + cellId(cr, cc));
-      cel.classList.add('wrong');
-      setTimeout(() => cel.classList.remove('wrong'), 450);
+      if (!cel.classList.contains('found')) {
+        cel.classList.add('wrong');
+        setTimeout(() => cel.classList.remove('wrong'), 450);
+      }
     });
   }
 }
@@ -384,7 +387,7 @@ function startScreen() {
 function startGame() {
   found = new Set();
   firstCell = null;
-  grid = generateGrid();
+  try { grid = generateGrid(); } catch(e) { document.getElementById('app').innerHTML = '<p style="padding:20px;color:red;font-family:Verdana">Erro ao gerar grade. Recarregue a página.</p>'; return; }
   const cells = grid.map((row, r) =>
     row.map((letter, c) =>
       `<div class="ws-cell" id="cell-${cellId(r,c)}" onclick="handleCellClick(${r},${c})" onmouseenter="handleCellHover(${r},${c})">${letter}</div>`
