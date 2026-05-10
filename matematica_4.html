@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Matemática: Qual Operação Usar?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --blue-light: #dbeafe;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Verdana, Geneva, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #bfdbfe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--blue-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--blue); }
+  .score-pill {
+    background: var(--blue-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--blue), #93c5fd);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-emoji { font-size: 52px; display: block; text-align: center; margin-bottom: 14px; }
+  .q-text {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.6;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--blue);
+  }
+
+  .ops-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .op-btn {
+    border-radius: 14px;
+    padding: 14px 10px;
+    border: 2.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .op-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); }
+  .op-btn:active:not(:disabled) { transform: scale(0.97); }
+  .op-btn:disabled { cursor: default; }
+  .op-btn.correct { border-color: #16a34a; background: #dcfce7; cursor: default; }
+  .op-btn.wrong   { border-color: #ef4444; background: #fee2e2; cursor: default; }
+  .op-symbol { font-size: 24px; font-weight: 900; display: block; font-family: Verdana, sans-serif; color: var(--blue-dark); }
+  .op-name   { font-size: 12px; font-weight: 700; display: block; margin-top: 3px; font-family: Verdana, sans-serif; color: #374151; }
+  .op-hint   { font-size: 10px; font-style: italic; display: block; margin-top: 4px; font-family: Verdana, sans-serif; color: #6b7280; line-height: 1.4; }
+  .op-btn.correct .op-symbol, .op-btn.correct .op-name { color: #15803d; }
+  .op-btn.wrong .op-symbol,   .op-btn.wrong .op-name   { color: #b91c1c; }
+
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .feedback-panel.err { background: #fee2e2; border: 2px solid #ef4444; }
+  .fb-header { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+  .feedback-panel.ok  .fb-header { color: #15803d; }
+  .feedback-panel.err .fb-header { color: #b91c1c; }
+  .fb-explain { font-family: Verdana, Geneva, sans-serif; font-size: 12px; line-height: 1.6; }
+  .feedback-panel.ok  .fb-explain { color: #166534; }
+  .feedback-panel.err .fb-explain { color: #991b1b; }
+  .fb-keywords {
+    margin-top: 8px;
+    padding: 7px 12px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1.5px solid #fca5a5;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #b91c1c;
+  }
+
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: Verdana, Geneva, sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--blue-dark); margin-bottom: 6px; }
+  .result-count { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    border: 6px solid var(--blue);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--blue-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--blue-dark); font-weight: 700; }
+  .result-msg { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--blue-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--blue-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--blue); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: Verdana, Geneva, sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: Verdana, Geneva, sans-serif; }
+  .start-btn {
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .q-text { font-size: 14px; }
+    .op-symbol { font-size: 20px; }
+    .op-name { font-size: 11px; }
+    .op-hint { font-size: 9px; }
+    .ops-grid { gap: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🧮</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const OPS = [
+  { id:"adicao",        symbol:"+", name:"Adição",        hint:"juntar · a mais · ao todo" },
+  { id:"subtracao",     symbol:"−", name:"Subtração",     hint:"tirar · sobrou · a menos" },
+  { id:"multiplicacao", symbol:"×", name:"Multiplicação", hint:"vezes · grupos iguais" },
+  { id:"divisao",       symbol:"÷", name:"Divisão",       hint:"dividir · partes iguais" },
+];
+
+const THRESHOLD = 8;
+
+const Q = [
+  { e:"🎒", q:"A turma tem 24 alunos e chegaram mais 8. Quantos alunos há agora?",                                             ans:"adicao",        explain:"Quando <strong>juntamos</strong> quantidades, usamos a adição. 'Chegaram <strong>mais</strong> 8' é a pista!" },
+  { e:"🍬", q:"Maria tinha 30 balas e deu 12 para a amiga. Quantas balas sobraram?",                                          ans:"subtracao",     explain:"Quando <strong>tiramos</strong> ou algo <strong>sobra</strong>, usamos a subtração. '<strong>Deu</strong>' e '<strong>sobraram</strong>' são as pistas!" },
+  { e:"🍫", q:"Cada caixa tem 6 chocolates. Se temos 4 caixas, quantos chocolates há ao todo?",                               ans:"multiplicacao", explain:"Quando temos <strong>grupos iguais</strong>, usamos a multiplicação. '<strong>Cada caixa tem 6</strong>' — são grupos iguais!" },
+  { e:"🍕", q:"Uma pizza tem 8 fatias e será dividida entre 4 pessoas. Quantas fatias cada uma recebe?",                      ans:"divisao",       explain:"Quando <strong>dividimos igualmente</strong>, usamos a divisão. '<strong>Dividida entre</strong>' e '<strong>cada uma recebe</strong>' são as pistas!" },
+  { e:"🍎", q:"Pedro tinha 15 figurinhas e ganhou mais 12 de presente. Quantas ele tem ao todo?",                             ans:"adicao",        explain:"Quando <strong>acrescentamos</strong> algo, usamos a adição. '<strong>Ganhou mais</strong>' e '<strong>ao todo</strong>' são as pistas!" },
+  { e:"🐟", q:"Havia 45 peixes no aquário e 17 foram vendidos. Quantos peixes ficaram?",                                      ans:"subtracao",     explain:"Quando algo é <strong>retirado</strong>, usamos a subtração. '<strong>Foram vendidos</strong>' significa que tiramos — é a pista!" },
+  { e:"🐾", q:"Cada cachorro tem 4 patas. Quantas patas têm 5 cachorros?",                                                    ans:"multiplicacao", explain:"Quando multiplicamos <strong>a mesma quantidade várias vezes</strong>, usamos a multiplicação. '<strong>Cada cachorro</strong>' repete a mesma quantidade!" },
+  { e:"🍬", q:"Temos 20 balas para repartir igualmente entre 5 crianças. Quantas balas cada uma fica?",                       ans:"divisao",       explain:"Quando <strong>repartimos em partes iguais</strong>, usamos a divisão. '<strong>Repartir igualmente</strong>' e '<strong>cada uma</strong>' são as pistas!" },
+  { e:"🚌", q:"No ônibus havia 30 passageiros. Em um ponto subiram mais 14. Quantos passageiros ficaram?",                    ans:"adicao",        explain:"Quando algo é <strong>acrescentado</strong>, usamos a adição. '<strong>Subiram mais</strong>' é a pista!" },
+  { e:"🎯", q:"Lucas tinha R$ 50 e gastou R$ 23 na lanchonete. Quanto dinheiro sobrou?",                                     ans:"subtracao",     explain:"Quando <strong>gastamos</strong> ou <strong>perdemos</strong> quantidade, usamos a subtração. '<strong>Gastou</strong>' e '<strong>sobrou</strong>' são as pistas!" },
+  { e:"🚲", q:"Numa corrida, cada atleta pedala 3 voltas por dia. Quantas voltas 6 atletas pedalam?",                         ans:"multiplicacao", explain:"Quando temos <strong>grupos iguais</strong> que se repetem, usamos a multiplicação. '<strong>Cada atleta</strong>' e '<strong>por dia</strong>' indicam grupos iguais!" },
+  { e:"📦", q:"Uma loja recebeu 36 produtos e vai colocar 9 em cada prateleira. Quantas prateleiras serão usadas?",           ans:"divisao",       explain:"Quando sabemos o total e queremos saber <strong>quantos grupos</strong> formamos, usamos a divisão. '<strong>Em cada prateleira</strong>' é a pista!" },
+  { e:"📚", q:"Ana leu 18 páginas de manhã e 25 à tarde. Quantas páginas ela leu no total?",                                  ans:"adicao",        explain:"Queremos saber o <strong>total</strong> de duas quantidades — isso é adição. '<strong>No total</strong>' é a pista!" },
+  { e:"🌡️", q:"De manhã eram 32°C e à noite caiu 9 graus. Qual é a temperatura agora?",                                     ans:"subtracao",     explain:"Quando algo <strong>diminui</strong> ou <strong>cai</strong>, usamos a subtração. '<strong>Caiu</strong>' é a pista!" },
+  { e:"🎁", q:"A professora quer dar 5 adesivos para cada aluno. Se há 7 alunos, quantos adesivos ela precisa?",              ans:"multiplicacao", explain:"Quando damos a <strong>mesma quantidade para várias pessoas</strong>, usamos a multiplicação. '<strong>Para cada aluno</strong>' é a pista!" },
+  { e:"🎽", q:"Há 24 alunos para formar times com o mesmo número de jogadores. Se cada time tem 6, quantos times haverá?",   ans:"divisao",       explain:"Quando formamos <strong>grupos iguais</strong> a partir de um total, usamos a divisão. '<strong>Mesmo número</strong>' e '<strong>cada time</strong>' são as pistas!" },
+];
+
+let cur = 0, score = 0, transitionShown = false;
+
+function startScreen() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🧮</span>
+      <div class="start-title">Quiz da <span>Manu!</span></div>
+      <div class="start-sub">Leia o problema e escolha a operação certa —<br>sem precisar calcular!</div>
+      <div class="start-facts">
+        <div class="start-fact">🔢 16 perguntas</div>
+        <div class="start-fact">🧩 Identifique a operação</div>
+        <div class="start-fact">🎓 + − × ÷</div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+function startQuiz() {
+  cur = 0; score = 0; transitionShown = false;
+  document.getElementById('score-val').textContent = 0;
+  render();
+}
+
+function render() {
+  if (cur >= Q.length) { showResult(); return; }
+  if (cur === THRESHOLD && !transitionShown) { showTransition(); return; }
+
+  const q = Q[cur];
+  const pct = Math.round((cur / Q.length) * 100);
+  const showHint = cur < THRESHOLD;
+  const nextLabel = cur === Q.length - 1 ? 'Ver resultado 🏆' : 'Próxima pergunta →';
+
+  const opBtns = OPS.map(op => `
+    <button class="op-btn" onclick="answer('${op.id}')" id="op-${op.id}">
+      <span class="op-symbol">${op.symbol}</span>
+      <span class="op-name">${op.name}</span>
+      ${showHint ? `<span class="op-hint">${op.hint}</span>` : ''}
+    </button>`).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Pergunta ${cur + 1} de ${Q.length}</div>
+    <div class="q-card">
+      <span class="q-emoji">${q.e}</span>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="ops-grid">${opBtns}</div>
+    <div class="feedback-panel" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">${nextLabel}</button>`;
+}
+
+function answer(opId) {
+  OPS.forEach(op => {
+    const btn = document.getElementById('op-' + op.id);
+    btn.disabled = true;
+    if (op.id === Q[cur].ans) btn.classList.add('correct');
+  });
+
+  const feedback = document.getElementById('feedback');
+  const correct = opId === Q[cur].ans;
+
+  if (correct) {
+    score += 10;
+    document.getElementById('score-val').textContent = score;
+    const op = OPS.find(o => o.id === Q[cur].ans);
+    feedback.className = 'feedback-panel show ok';
+    feedback.innerHTML = `
+      <div class="fb-header">🎉 Isso mesmo! ${op.name.toUpperCase()}</div>
+      <div class="fb-explain">${Q[cur].explain}</div>`;
+  } else {
+    document.getElementById('op-' + opId).classList.add('wrong');
+    const op = OPS.find(o => o.id === Q[cur].ans);
+    feedback.className = 'feedback-panel show err';
+    feedback.innerHTML = `
+      <div class="fb-header">💪 Quase! A resposta é ${op.name.toUpperCase()}</div>
+      <div class="fb-explain">${Q[cur].explain}</div>
+      <div class="fb-keywords">✓ ${op.name} — ${op.hint}</div>`;
+  }
+
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion() {
+  cur++;
+  render();
+}
+
+function showTransition() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🚀</span>
+        <div class="transition-title">Muito bem!</div>
+        <div class="transition-sub">Agora vamos para o desafio —<br>sem as palavras de ajuda. Você consegue!</div>
+      </div>
+      <button class="continue-btn" onclick="continueQuiz()">Continuar</button>
+    </div>`;
+}
+
+function continueQuiz() {
+  transitionShown = true;
+  render();
+}
+
+function showResult() {
+  const correct = score / 10;
+  let msg;
+  if (correct === 16)      msg = "Perfeito! Você domina todas as operações! 🌟";
+  else if (correct >= 12)  msg = "Muito bem! Você já sabe identificar a maioria! 💪";
+  else if (correct >= 8)   msg = "Bom trabalho! Continue praticando! 📚";
+  else                     msg = "Continue tentando — você vai melhorar! 🌈";
+
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de 16 operações!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
