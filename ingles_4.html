@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Inglês: Animais Selvagens + Dias da Semana</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #db2777;
+    --pink-dark: #be185d;
+    --pink-light: #fce7f3;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Verdana, Geneva, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #fbcfe8;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--pink-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--pink); }
+  .score-pill {
+    background: var(--pink-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--pink), #f9a8d4);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-emoji { font-size: 64px; display: block; text-align: center; margin-bottom: 12px; }
+  .q-label {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Answer slots area */
+  .slots-area {
+    background: #f8fafc;
+    border: 2px dashed #e5e7eb;
+    border-radius: 14px;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    min-height: 56px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .slot {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    background: var(--pink);
+    color: #fff;
+    border: 2px solid var(--pink-dark);
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .slot:hover { transform: scale(0.95); }
+  .slot:active { transform: scale(0.92); }
+  .slot.syllable {
+    width: auto;
+    min-width: 48px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  .slot-empty {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+  }
+  .slot-empty.syllable {
+    width: 48px;
+    min-width: 48px;
+    padding: 0 10px;
+  }
+
+  /* Tiles area */
+  .tiles-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .tiles-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .tile {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    background: #f9fafb;
+    border: 2.5px solid #e5e7eb;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--text);
+  }
+  .tile:hover:not(.used) { border-color: var(--pink); background: var(--pink-light); }
+  .tile:active:not(.used) { transform: scale(0.93); }
+  .tile.used {
+    background: #f1f5f9;
+    color: #d1d5db;
+    text-decoration: line-through;
+    cursor: default;
+    border-color: #e5e7eb;
+  }
+  .tile.syllable {
+    width: auto;
+    min-width: 48px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  /* Feedback */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .fb-header { font-family: Verdana, Geneva, sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: #15803d; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #15803d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: Verdana, Geneva, sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #9d174d; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--pink-dark); margin-bottom: 6px; }
+  .result-count { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--pink-light);
+    border: 6px solid var(--pink);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--pink-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--pink-dark); font-weight: 700; }
+  .result-msg { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--pink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--pink-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--pink-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--pink); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: Verdana, Geneva, sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: Verdana, Geneva, sans-serif; }
+  .start-btn {
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #9d174d; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .tile, .slot, .slot-empty { width: 30px; height: 30px; font-size: 12px; border-radius: 8px; }
+    .tile.syllable, .slot.syllable, .slot-empty.syllable { min-width: 38px; font-size: 11px; padding: 0 7px; }
+    .q-emoji { font-size: 52px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🐾</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const ANIMALS = [
+  { emoji:"🐘", name:"ELEPHANT",     pt:"Elefante",   extra:["G","O","T"] },
+  { emoji:"🦁", name:"LION",         pt:"Leão",       extra:["G","A","E"] },
+  { emoji:"🦛", name:"HIPPOPOTAMUS", pt:"Hipopótamo", extra:["G","F","R"] },
+  { emoji:"🐊", name:"CROCODILE",    pt:"Crocodilo",  extra:["M","B","F"] },
+  { emoji:"🦘", name:"KANGAROO",     pt:"Canguru",    extra:["M","T","L"] },
+  { emoji:"🐯", name:"TIGER",        pt:"Tigre",      extra:["A","L","N"] },
+  { emoji:"🦒", name:"GIRAFFE",      pt:"Girafa",     extra:["N","O","T"] },
+  { emoji:"🦓", name:"ZEBRA",        pt:"Zebra",      extra:["T","L","N"] },
+  { emoji:"🐒", name:"MONKEY",       pt:"Macaco",     extra:["A","T","P"] },
+  { emoji:"🐧", name:"PENGUIN",      pt:"Pinguim",    extra:["A","T","O"] },
+  { emoji:"🐍", name:"SNAKE",        pt:"Cobra",      extra:["T","R","O"] },
+  { emoji:"🐻", name:"BEAR",         pt:"Urso",       extra:["T","L","N"] },
+];
+
+const DAYS = [
+  { name:"MONDAY",    syllables:["MON","DAY"],       pt:"Segunda-feira", extra:["SAT","SUN"] },
+  { name:"TUESDAY",   syllables:["TUES","DAY"],      pt:"Terça-feira",   extra:["MON","FRI"] },
+  { name:"WEDNESDAY", syllables:["WED","NES","DAY"], pt:"Quarta-feira",  extra:["MON","SAT"] },
+  { name:"THURSDAY",  syllables:["THURS","DAY"],     pt:"Quinta-feira",  extra:["MON","SUN"] },
+  { name:"FRIDAY",    syllables:["FRI","DAY"],       pt:"Sexta-feira",   extra:["SAT","MON"] },
+  { name:"SATURDAY",  syllables:["SAT","UR","DAY"],  pt:"Sábado",        extra:["MON","FRI"] },
+  { name:"SUNDAY",    syllables:["SUN","DAY"],       pt:"Domingo",       extra:["MON","SAT"] },
+];
+
+const SECTION_BREAK = 12;
+const TOTAL = 19;
+
+let cur = 0, score = 0, tiles = [], placed = [], won = false;
+
+function currentItem() {
+  return cur < SECTION_BREAK ? ANIMALS[cur] : DAYS[cur - SECTION_BREAK];
+}
+
+function isSyllableMode() {
+  return cur >= SECTION_BREAK;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildTiles(item) {
+  const syllable = isSyllableMode();
+  let letters;
+  if (syllable) {
+    letters = [...item.syllables, ...item.extra];
+  } else {
+    letters = [...item.name.split(''), ...item.extra];
+  }
+  return shuffle(letters).map(l => ({ letter: l, used: false }));
+}
+
+function loadItem() {
+  const item = currentItem();
+  tiles = buildTiles(item);
+  placed = [];
+  won = false;
+  renderGame();
+}
+
+function renderGame() {
+  const item = currentItem();
+  const syllable = isSyllableMode();
+  const maxSlots = syllable ? item.syllables.length : item.name.length;
+
+  // Progress
+  let progressLabel, pct;
+  if (!syllable) {
+    const animalNum = cur + 1;
+    progressLabel = `Animal ${animalNum} de 12`;
+    pct = Math.round((cur / TOTAL) * 100);
+  } else {
+    const dayNum = cur - SECTION_BREAK + 1;
+    progressLabel = `Dia ${dayNum} de 7`;
+    pct = Math.round((cur / TOTAL) * 100);
+  }
+
+  const qLabel = syllable ? "Forma o dia da semana:" : "Qual é o nome deste animal?";
+  const tilesLabel = syllable ? "Clique nas sílabas em ordem" : "Clique nas letras em ordem";
+
+  // Slots
+  const slotsHtml = Array.from({ length: maxSlots }, (_, i) => {
+    if (i < placed.length) {
+      const cls = syllable ? 'slot syllable' : 'slot';
+      return `<div class="${cls}" onclick="clickSlot(${i})">${placed[i].letter}</div>`;
+    } else {
+      const cls = syllable ? 'slot-empty syllable' : 'slot-empty';
+      return `<div class="${cls}"></div>`;
+    }
+  }).join('');
+
+  // Tiles
+  const tilesHtml = tiles.map((t, i) => {
+    const cls = syllable
+      ? (t.used ? 'tile syllable used' : 'tile syllable')
+      : (t.used ? 'tile used' : 'tile');
+    const handler = t.used ? '' : `onclick="clickTile(${i})"`;
+    return `<div class="${cls}" ${handler}>${t.letter}</div>`;
+  }).join('');
+
+  // Next button label
+  let nextLabel;
+  if (cur === TOTAL - 1) {
+    nextLabel = 'Ver resultado 🏆';
+  } else if (syllable) {
+    nextLabel = 'Próximo dia →';
+  } else {
+    nextLabel = 'Próximo animal →';
+  }
+
+  // Feedback
+  const feedbackHtml = won
+    ? `<div class="feedback-panel show ok">
+        <div class="fb-header">✓ ${item.name} — ${item.pt}!</div>
+       </div>`
+    : `<div class="feedback-panel" id="feedback"></div>`;
+
+  const nextClass = won ? 'next-btn show' : 'next-btn';
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${progressLabel}</div>
+    <div class="q-card">
+      <span class="q-emoji">${item.emoji}</span>
+      <div class="q-label">${qLabel}</div>
+      <div class="slots-area">${slotsHtml}</div>
+    </div>
+    <div class="tiles-label">${tilesLabel}</div>
+    <div class="tiles-area">${tilesHtml}</div>
+    ${feedbackHtml}
+    <button class="${nextClass}" id="next-btn" onclick="nextItem()">${nextLabel}</button>`;
+}
+
+function clickTile(i) {
+  if (won) return;
+  if (tiles[i].used) return;
+  const item = currentItem();
+  const syllable = isSyllableMode();
+  const maxSlots = syllable ? item.syllables.length : item.name.length;
+  if (placed.length >= maxSlots) return;
+
+  tiles[i].used = true;
+  placed.push({ tileIdx: i, letter: tiles[i].letter });
+
+  // Check if word is complete
+  const word = placed.map(p => p.letter).join('');
+  if (placed.length === maxSlots && word === item.name) {
+    won = true;
+    score += 10;
+    document.getElementById('score-val').textContent = score;
+  }
+
+  renderGame();
+}
+
+function clickSlot(j) {
+  if (won) return;
+  // Remove placed[j] and all after it, freeing their tiles
+  const removed = placed.splice(j);
+  removed.forEach(p => { tiles[p.tileIdx].used = false; });
+  renderGame();
+}
+
+function nextItem() {
+  cur++;
+  if (cur >= TOTAL) { showResult(); return; }
+  if (cur === SECTION_BREAK) { showTransition(); return; }
+  loadItem();
+}
+
+function continueGame() {
+  loadItem();
+}
+
+function showTransition() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🚀</span>
+        <div class="transition-title">Muito bem!</div>
+        <div class="transition-sub">Agora vamos para os dias da semana!</div>
+      </div>
+      <button class="continue-btn" onclick="continueGame()">Continuar</button>
+    </div>`;
+}
+
+function showResult() {
+  const correct = score / 10;
+  let msg;
+  if (correct === 19)       msg = "Perfeito! Você sabe soletrar tudo! 🌟";
+  else if (correct >= 14)   msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= 9)    msg = "Bom trabalho! Continue praticando! 📚";
+  else                      msg = "Continue tentando — você vai melhorar! 🌈";
+
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você completou ${correct} de 19 palavras!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+function startScreen() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🐾</span>
+      <div class="start-title">Quiz da <span>Manu!</span></div>
+      <div class="start-sub">Desembaralha as letras para descobrir o animal — depois forma os dias da semana!</div>
+      <div class="start-facts">
+        <div class="start-fact">🦁 12 animais</div>
+        <div class="start-fact">📅 7 dias</div>
+        <div class="start-fact">🔤 Letras e sílabas</div>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+function startQuiz() {
+  cur = 0; score = 0;
+  document.getElementById('score-val').textContent = 0;
+  loadItem();
+}
+
+startScreen();
+</script>
+</body>
+</html>
