@@ -231,6 +231,19 @@
     padding: 0 10px;
     font-size: 13px;
   }
+  .tile.wrong {
+    border-color: #ef4444 !important;
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    animation: tileShake 0.4s ease;
+  }
+  @keyframes tileShake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
 
   /* Feedback */
   .feedback-panel {
@@ -414,13 +427,13 @@ const ANIMALS = [
 ];
 
 const DAYS = [
-  { name:"MONDAY",    syllables:["MON","DAY"],       pt:"Segunda-feira", extra:[] },
-  { name:"TUESDAY",   syllables:["TUES","DAY"],      pt:"Terça-feira",   extra:[] },
-  { name:"WEDNESDAY", syllables:["WED","NES","DAY"], pt:"Quarta-feira",  extra:[] },
-  { name:"THURSDAY",  syllables:["THURS","DAY"],     pt:"Quinta-feira",  extra:[] },
-  { name:"FRIDAY",    syllables:["FRI","DAY"],       pt:"Sexta-feira",   extra:[] },
-  { name:"SATURDAY",  syllables:["SAT","UR","DAY"],  pt:"Sábado",        extra:[] },
-  { name:"SUNDAY",    syllables:["SUN","DAY"],       pt:"Domingo",       extra:[] },
+  { emoji:"📅", name:"MONDAY",    syllables:["MON","DAY"],       pt:"Segunda-feira", extra:[] },
+  { emoji:"📅", name:"TUESDAY",   syllables:["TUES","DAY"],      pt:"Terça-feira",   extra:[] },
+  { emoji:"📅", name:"WEDNESDAY", syllables:["WED","NES","DAY"], pt:"Quarta-feira",  extra:[] },
+  { emoji:"📅", name:"THURSDAY",  syllables:["THURS","DAY"],     pt:"Quinta-feira",  extra:[] },
+  { emoji:"📅", name:"FRIDAY",    syllables:["FRI","DAY"],       pt:"Sexta-feira",   extra:[] },
+  { emoji:"📅", name:"SATURDAY",  syllables:["SAT","UR","DAY"],  pt:"Sábado",        extra:[] },
+  { emoji:"📅", name:"SUNDAY",    syllables:["SUN","DAY"],       pt:"Domingo",       extra:[] },
 ];
 
 const SECTION_BREAK = 12;
@@ -501,7 +514,7 @@ function renderGame() {
       ? (t.used ? 'tile syllable used' : 'tile syllable')
       : (t.used ? 'tile used' : 'tile');
     const handler = t.used ? '' : `onclick="clickTile(${i})"`;
-    return `<div class="${cls}" ${handler}>${t.letter}</div>`;
+    return `<div id="tile-${i}" class="${cls}" ${handler}>${t.letter}</div>`;
   }).join('');
 
   // Next button label
@@ -545,12 +558,23 @@ function clickTile(i) {
   const maxSlots = syllable ? item.syllables.length : item.name.length;
   if (placed.length >= maxSlots) return;
 
+  const expected = syllable ? item.syllables[placed.length] : item.name[placed.length];
+
+  if (tiles[i].letter !== expected) {
+    const el = document.getElementById('tile-' + i);
+    if (el) {
+      el.classList.remove('wrong');
+      void el.offsetWidth;
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 450);
+    }
+    return;
+  }
+
   tiles[i].used = true;
   placed.push({ tileIdx: i, letter: tiles[i].letter });
 
-  // Check if word is complete
-  const word = placed.map(p => p.letter).join('');
-  if (placed.length === maxSlots && word === item.name) {
+  if (placed.length === maxSlots) {
     won = true;
     score += 10;
     document.getElementById('score-val').textContent = score;
