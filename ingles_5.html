@@ -349,7 +349,7 @@ const THERE_OPTIONS = ["is", "are", "isn't", "aren't"];
 const TOTAL = 22;
 const SECTION_BREAK = 12;
 
-let cur = 0, score = 0;
+let cur = 0, score = 0, transitionShown = false;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -376,15 +376,14 @@ function startScreen() {
 }
 
 function startGame() {
-  cur = 0;
-  score = 0;
+  cur = 0; score = 0; transitionShown = false;
   document.getElementById('score-val').textContent = 0;
   render();
 }
 
 function render() {
   if (cur >= TOTAL) { showResult(); return; }
-  if (cur === SECTION_BREAK) { showTransition(); return; }
+  if (cur === SECTION_BREAK && !transitionShown) { showTransition(); return; }
   if (cur < SECTION_BREAK) renderThereToBeQ();
   else renderRoutineQ();
 }
@@ -487,9 +486,7 @@ function showTransition() {
     </div>`;
 }
 
-function continueQuiz() {
-  render();
-}
+function continueQuiz() { transitionShown = true; render(); }
 
 function showResult() {
   const correct = score / 10;
