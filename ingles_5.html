@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Inglês: There to be & Rotina</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #db2777;
+    --pink-dark: #be185d;
+    --pink-light: #fce7f3;
+    --yellow-light: #fef9c3;
+    --bg: #fff5fb;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Verdana, Geneva, sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #fbcfe8;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--pink-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--pink); }
+  .score-pill {
+    background: var(--pink-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--pink), #f9a8d4);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* The ___ in the sentence */
+  .blank { color: var(--pink-dark); text-decoration: underline; font-style: italic; letter-spacing: 2px; }
+
+  /* Question sentence for there to be */
+  .q-text {
+    font-family: Verdana, Geneva, sans-serif; font-size: 17px; font-weight: 700; color: var(--text);
+    background: #f8fafc; border-radius: 12px; padding: 16px 18px; border-left: 4px solid var(--pink);
+    line-height: 1.6; text-align: center;
+  }
+
+  /* Routine emoji display */
+  .q-emoji { font-size: 56px; display: block; text-align: center; margin-bottom: 10px; }
+  .q-pt { font-family: Verdana, Geneva, sans-serif; font-size: 13px; font-weight: 700; color: var(--text-soft); text-align: center; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* 2x2 grid for there to be options */
+  .ops-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+
+  /* Column layout for routine options */
+  .routine-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+
+  /* Option buttons */
+  .op-btn {
+    border-radius: 14px; padding: 16px 10px; border: 2.5px solid #e5e7eb; background: #f9fafb;
+    cursor: pointer; text-align: center; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .op-btn:hover:not(:disabled) { border-color: var(--pink); background: var(--pink-light); }
+  .op-btn:active:not(:disabled) { transform: scale(0.97); }
+  .op-btn:disabled { cursor: default; }
+  .op-btn.correct { border-color: #16a34a; background: #dcfce7; }
+  .op-btn.wrong   { border-color: #ef4444; background: #fee2e2; }
+  .op-name { font-family: Verdana, Geneva, sans-serif; font-size: 17px; font-weight: 900; display: block; color: #374151; }
+  .op-btn.correct .op-name { color: #15803d; }
+  .op-btn.wrong   .op-name { color: #b91c1c; }
+
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .feedback-panel.err { background: #fee2e2; border: 2px solid #ef4444; }
+  .fb-header { font-family: Verdana, Geneva, sans-serif; font-size: 14px; font-weight: 900; margin-bottom: 6px; }
+  .feedback-panel.ok  .fb-header { color: #15803d; }
+  .feedback-panel.err .fb-header { color: #b91c1c; }
+  .fb-explain { font-family: Verdana, Geneva, sans-serif; font-size: 12px; line-height: 1.6; }
+  .feedback-panel.ok  .fb-explain { color: #166534; }
+  .feedback-panel.err .fb-explain { color: #991b1b; }
+
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #9d174d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+  .next-btn.green { background: #16a34a; }
+  .next-btn.green:hover { background: #15803d; }
+
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: Verdana, Geneva, sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #9d174d; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--pink-dark); margin-bottom: 6px; }
+  .result-count { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--pink-light);
+    border: 6px solid var(--pink);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--pink-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--pink-dark); font-weight: 700; }
+  .result-msg { font-family: Verdana, Geneva, sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--pink);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--pink-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--pink-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--pink); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: Verdana, Geneva, sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: Verdana, Geneva, sans-serif; }
+  .start-btn {
+    background: var(--pink-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #9d174d; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .q-text { font-size: 15px; }
+    .op-name { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 📚</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const QUESTIONS = [
+  { q:"There ___ a lion in the zoo.",           ans:"is",     explain:"Um leão = singular → usamos <strong>is</strong>." },
+  { q:"There ___ two elephants in the field.",  ans:"are",    explain:"Dois elefantes = plural → usamos <strong>are</strong>." },
+  { q:"There ___ any milk in the glass.",       ans:"isn't",  explain:"Sem leite = negativo singular → usamos <strong>isn't</strong>." },
+  { q:"There ___ any apples on the table.",     ans:"aren't", explain:"Sem maçãs = negativo plural → usamos <strong>aren't</strong>." },
+  { q:"There ___ a book on the table.",         ans:"is",     explain:"Um livro = singular → usamos <strong>is</strong>." },
+  { q:"There ___ many birds in the sky.",       ans:"are",    explain:"Muitos pássaros = plural → usamos <strong>are</strong>." },
+  { q:"There ___ a cat in the garden.",         ans:"isn't",  explain:"Sem gato = negativo singular → usamos <strong>isn't</strong>." },
+  { q:"There ___ any fish in the bowl.",        ans:"aren't", explain:"Sem peixes = negativo plural → usamos <strong>aren't</strong>." },
+  { q:"There ___ a dog in the park.",           ans:"is",     explain:"Um cachorro = singular → usamos <strong>is</strong>." },
+  { q:"There ___ five children in the class.",  ans:"are",    explain:"Cinco crianças = plural → usamos <strong>are</strong>." },
+  { q:"There ___ a teacher in the room.",       ans:"isn't",  explain:"Sem professor = negativo singular → usamos <strong>isn't</strong>." },
+  { q:"There ___ any students in the library.", ans:"aren't", explain:"Sem alunos = negativo plural → usamos <strong>aren't</strong>." },
+];
+
+const ROUTINE = [
+  { emoji:"🌅", pt:"Acordar",           ans:"wake up",        distractors:["wake down","get up early"] },
+  { emoji:"🪥", pt:"Escovar os dentes", ans:"brush teeth",    distractors:["brush hair","clean mouth"] },
+  { emoji:"🚿", pt:"Tomar banho",        ans:"take a shower",  distractors:["take a bath","wash hands"] },
+  { emoji:"🍳", pt:"Tomar café",         ans:"have breakfast", distractors:["have lunch","eat dinner"] },
+  { emoji:"🎒", pt:"Ir para a escola",   ans:"go to school",   distractors:["go to work","go to bed"] },
+  { emoji:"🍽️", pt:"Almoçar",           ans:"have lunch",     distractors:["have dinner","have breakfast"] },
+  { emoji:"📚", pt:"Fazer lição",        ans:"do homework",    distractors:["do exercise","do the dishes"] },
+  { emoji:"📺", pt:"Ver TV",             ans:"watch TV",       distractors:["play games","watch movies"] },
+  { emoji:"🥘", pt:"Jantar",             ans:"have dinner",    distractors:["have lunch","have supper"] },
+  { emoji:"🌙", pt:"Ir dormir",          ans:"go to bed",      distractors:["go to sleep","good night"] },
+];
+
+const THERE_OPTIONS = ["is", "are", "isn't", "aren't"];
+const TOTAL = 22;
+const SECTION_BREAK = 12;
+
+let cur = 0, score = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startScreen() {
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">📚</span>
+      <div class="start-title">Quiz da <span>Manu!</span></div>
+      <div class="start-sub">Completa as frases com 'There is/are' e aprende a rotina em inglês!</div>
+      <div class="start-facts">
+        <div class="start-fact">📝 12 frases</div>
+        <div class="start-fact">🌅 10 atividades</div>
+        <div class="start-fact">🇬🇧 There is / are</div>
+      </div>
+      <button class="start-btn" onclick="startGame()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+function startGame() {
+  cur = 0;
+  score = 0;
+  document.getElementById('score-val').textContent = 0;
+  render();
+}
+
+function render() {
+  if (cur >= TOTAL) { showResult(); return; }
+  if (cur === SECTION_BREAK) { showTransition(); return; }
+  if (cur < SECTION_BREAK) renderThereToBeQ();
+  else renderRoutineQ();
+}
+
+function renderThereToBeQ() {
+  const q = QUESTIONS[cur];
+  const pct = Math.round((cur / TOTAL) * 100);
+  const nextLabel = cur === TOTAL - 1 ? 'Ver resultado 🏆' : 'Próxima →';
+
+  // Replace ___ with styled span
+  const sentence = q.q.replace('___', '<span class="blank">___</span>');
+
+  const opBtns = THERE_OPTIONS.map(opt => `
+    <button class="op-btn" data-option="${opt}" onclick="answer(this.dataset.option)">
+      <span class="op-name">${opt}</span>
+    </button>`).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Pergunta ${cur + 1} de ${TOTAL}</div>
+    <div class="q-card">
+      <div class="q-text">${sentence}</div>
+    </div>
+    <div class="ops-grid">${opBtns}</div>
+    <div class="feedback-panel" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">${nextLabel}</button>`;
+}
+
+function renderRoutineQ() {
+  const r = ROUTINE[cur - SECTION_BREAK];
+  const pct = Math.round((cur / TOTAL) * 100);
+  const nextLabel = cur === TOTAL - 1 ? 'Ver resultado 🏆' : 'Próxima →';
+
+  const options = shuffle([r.ans, ...r.distractors]);
+
+  const optBtns = options.map(opt => `
+    <button class="op-btn" data-option="${opt}" onclick="answer(this.dataset.option)">
+      <span class="op-name">${opt}</span>
+    </button>`).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Pergunta ${cur + 1} de ${TOTAL}</div>
+    <div class="q-card">
+      <span class="q-emoji">${r.emoji}</span>
+      <div class="q-pt">${r.pt}</div>
+    </div>
+    <div class="routine-grid">${optBtns}</div>
+    <div class="feedback-panel" id="feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">${nextLabel}</button>`;
+}
+
+function answer(choice) {
+  const isThereSection = cur < SECTION_BREAK;
+  const correctAns = isThereSection ? QUESTIONS[cur].ans : ROUTINE[cur - SECTION_BREAK].ans;
+  const correct = choice === correctAns;
+
+  // Disable all buttons and mark correct/wrong
+  document.querySelectorAll('.op-btn').forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.option === correctAns) btn.classList.add('correct');
+    else if (btn.dataset.option === choice && !correct) btn.classList.add('wrong');
+  });
+
+  if (correct) {
+    score += 10;
+    document.getElementById('score-val').textContent = score;
+  }
+
+  // Show feedback panel
+  const explain = isThereSection ? QUESTIONS[cur].explain : '';
+  const feedback = document.getElementById('feedback');
+  if (correct) {
+    feedback.className = 'feedback-panel show ok';
+    feedback.innerHTML = `<div class="fb-header">🎉 Isso mesmo! <strong>${correctAns.toUpperCase()}</strong></div>${explain ? `<div class="fb-explain">${explain}</div>` : ''}`;
+  } else {
+    feedback.className = 'feedback-panel show err';
+    feedback.innerHTML = `<div class="fb-header">💪 Quase! A resposta é <strong>${correctAns.toUpperCase()}</strong></div>${explain ? `<div class="fb-explain">${explain}</div>` : ''}`;
+  }
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.classList.add('show');
+  if (correct) nextBtn.classList.add('green');
+}
+
+function nextQuestion() {
+  cur++;
+  render();
+}
+
+function showTransition() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🚀</span>
+        <div class="transition-title">Muito bem!</div>
+        <div class="transition-sub">Agora vamos aprender a rotina em inglês!</div>
+      </div>
+      <button class="continue-btn" onclick="continueQuiz()">Continuar</button>
+    </div>`;
+}
+
+function continueQuiz() {
+  render();
+}
+
+function showResult() {
+  const correct = score / 10;
+  let msg;
+  if (correct === 22)      msg = "Perfeito! Você domina o inglês! 🌟";
+  else if (correct >= 17)  msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= 11)  msg = "Bom trabalho! Continue praticando! 📚";
+  else                     msg = "Continue tentando — você vai melhorar! 🌈";
+
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de 22 perguntas!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
