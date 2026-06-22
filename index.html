@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ManuQuiz — 1º Trimestre</title>
+<title>ManuQuiz — 3ª série</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -75,16 +75,43 @@
     margin-bottom: 4px;
   }
   .logo span { color: var(--orange); }
-  .trimestre-badge {
-    display: inline-block;
-    background: #fef9c3;
-    color: #854d0e;
-    font-family: 'Fredoka One', cursive;
-    font-size: 16px;
-    padding: 6px 20px;
-    border-radius: 50px;
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
     margin-bottom: 10px;
   }
+  .tab-btn {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    padding: 6px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    background: #e5e7eb;
+    color: #6b7280;
+    transition: background 0.15s, color 0.15s;
+  }
+  .tab-btn.active {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+
+  /* ---- EMPTY STATE ---- */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-soft);
+  }
+  .empty-state .empty-icon { font-size: 52px; margin-bottom: 12px; }
+  .empty-state .empty-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .empty-state .empty-sub { font-size: 14px; font-weight: 600; }
   .header-sub {
     font-size: 15px;
     color: var(--text-soft);
@@ -172,6 +199,10 @@
   .quiz-card.pink:hover  { border-color: #db2777; }
   .quiz-card.pink .quiz-name  { color: #be185d; }
 
+  .quiz-card.purple:hover { border-color: #7c3aed; }
+  .quiz-card.purple .quiz-name { color: #6d28d9; }
+  .subject-dot.purple { background: #7c3aed; }
+
   .subject-dot.green  { background: var(--green); }
   .subject-dot.blue   { background: var(--blue); }
   .subject-dot.orange { background: var(--orange); }
@@ -193,9 +224,50 @@
 
   <div class="header">
     <div class="logo">Manu<span>Quiz</span> 🌟</div>
-    <div class="trimestre-badge">📅 1º Trimestre — 3ª série</div>
-    <div class="header-sub">Escola Érico Veríssimo</div>
+    <div class="tabs">
+      <button class="tab-btn" id="btn-t1" onclick="showTab('t1')">📅 1º Trimestre</button>
+      <button class="tab-btn active" id="btn-t2" onclick="showTab('t2')">📅 2º Trimestre</button>
+    </div>
+    <div class="header-sub">3ª série · Escola Érico Veríssimo</div>
   </div>
+
+  <!-- 2º TRIMESTRE (ativo por padrão) -->
+  <div id="tab-t2">
+    <!-- PORTUGUÊS -->
+    <div class="subject">
+      <div class="subject-header">
+        <div class="subject-dot purple"></div>
+        <div class="subject-title">Português</div>
+      </div>
+      <a href="t2/portugues_1.html" class="quiz-card purple">
+        <div class="quiz-emoji">🔤</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Sons e Sílabas</div>
+          <div class="quiz-meta">26 questões · separação, tônica e acentos</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+      <a href="t2/portugues_2.html" class="quiz-card purple">
+        <div class="quiz-emoji">📝</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Classes de Palavras</div>
+          <div class="quiz-meta">22 questões · substantivos, adjetivos, artigos, pronomes</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+      <a href="t2/portugues_3.html" class="quiz-card purple">
+        <div class="quiz-emoji">📖</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Verbos e Vocabulário</div>
+          <div class="quiz-meta">20 questões · tempos verbais, sinônimos e antônimos</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 1º TRIMESTRE -->
+  <div id="tab-t1" style="display:none">
 
   <!-- CIÊNCIAS -->
   <div class="subject">
@@ -203,7 +275,7 @@
       <div class="subject-dot green"></div>
       <div class="subject-title">Ciências</div>
     </div>
-    <a href="ciencias_1.html" class="quiz-card green">
+    <a href="t1/ciencias_1.html" class="quiz-card green">
       <div class="quiz-emoji">🐾</div>
       <div class="quiz-info">
         <div class="quiz-name">Animais</div>
@@ -211,7 +283,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="ciencias_2.html" class="quiz-card green">
+    <a href="t1/ciencias_2.html" class="quiz-card green">
       <div class="quiz-emoji">🔥</div>
       <div class="quiz-info">
         <div class="quiz-name">Nível Expert</div>
@@ -227,7 +299,7 @@
       <div class="subject-dot blue"></div>
       <div class="subject-title">Matemática</div>
     </div>
-    <a href="matematica_1.html" class="quiz-card blue">
+    <a href="t1/matematica_1.html" class="quiz-card blue">
       <div class="quiz-emoji">🔢</div>
       <div class="quiz-info">
         <div class="quiz-name">Números</div>
@@ -235,7 +307,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="matematica_2.html" class="quiz-card blue">
+    <a href="t1/matematica_2.html" class="quiz-card blue">
       <div class="quiz-emoji">➕</div>
       <div class="quiz-info">
         <div class="quiz-name">Operações</div>
@@ -243,7 +315,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="matematica_3.html" class="quiz-card blue">
+    <a href="t1/matematica_3.html" class="quiz-card blue">
       <div class="quiz-emoji">🌟</div>
       <div class="quiz-info">
         <div class="quiz-name">Especial</div>
@@ -251,7 +323,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="matematica_4.html" class="quiz-card blue">
+    <a href="t1/matematica_4.html" class="quiz-card blue">
       <div class="quiz-emoji">🧮</div>
       <div class="quiz-info">
         <div class="quiz-name">Qual Operação Usar?</div>
@@ -267,7 +339,7 @@
       <div class="subject-dot orange"></div>
       <div class="subject-title">Estudos Sociais</div>
     </div>
-    <a href="estudos_sociais_1.html" class="quiz-card orange">
+    <a href="t1/estudos_sociais_1.html" class="quiz-card orange">
       <div class="quiz-emoji">🗺️</div>
       <div class="quiz-info">
         <div class="quiz-name">Localização e História</div>
@@ -275,7 +347,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="estudos_sociais_2.html" class="quiz-card orange">
+    <a href="t1/estudos_sociais_2.html" class="quiz-card orange">
       <div class="quiz-emoji">🏙️</div>
       <div class="quiz-info">
         <div class="quiz-name">Cidade e Cultura</div>
@@ -291,7 +363,7 @@
       <div class="subject-dot" style="background: #db2777"></div>
       <div class="subject-title">Inglês</div>
     </div>
-    <a href="ingles_1.html" class="quiz-card pink">
+    <a href="t1/ingles_1.html" class="quiz-card pink">
       <div class="quiz-emoji">🇬🇧</div>
       <div class="quiz-info">
         <div class="quiz-name">Dias da Semana — Nível 1</div>
@@ -299,7 +371,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="ingles_2.html" class="quiz-card pink">
+    <a href="t1/ingles_2.html" class="quiz-card pink">
       <div class="quiz-emoji">🇬🇧</div>
       <div class="quiz-info">
         <div class="quiz-name">Dias da Semana — Nível 2</div>
@@ -307,7 +379,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="ingles_3.html" class="quiz-card pink">
+    <a href="t1/ingles_3.html" class="quiz-card pink">
       <div class="quiz-emoji">🇬🇧</div>
       <div class="quiz-info">
         <div class="quiz-name">Dias da Semana — Nível 3</div>
@@ -315,7 +387,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="ingles_4.html" class="quiz-card pink">
+    <a href="t1/ingles_4.html" class="quiz-card pink">
       <div class="quiz-emoji">🐾</div>
       <div class="quiz-info">
         <div class="quiz-name">Wild Animals + Days</div>
@@ -323,7 +395,7 @@
       </div>
       <div class="quiz-arrow">›</div>
     </a>
-    <a href="ingles_5.html" class="quiz-card pink">
+    <a href="t1/ingles_5.html" class="quiz-card pink">
       <div class="quiz-emoji">📚</div>
       <div class="quiz-info">
         <div class="quiz-name">There to be + Routine</div>
@@ -333,6 +405,16 @@
     </a>
   </div>
 
+  </div><!-- /tab-t1 -->
+
 </div>
+<script>
+  function showTab(id) {
+    document.getElementById('tab-t1').style.display = id === 't1' ? 'block' : 'none';
+    document.getElementById('tab-t2').style.display = id === 't2' ? 'block' : 'none';
+    document.getElementById('btn-t1').classList.toggle('active', id === 't1');
+    document.getElementById('btn-t2').classList.toggle('active', id === 't2');
+  }
+</script>
 </body>
 </html>
