@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Português: Sons e Sílabas</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #7c3aed;
+    --purple-dark: #6d28d9;
+    --purple-light: #ede9fe;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #ddd6fe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--purple-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--purple); }
+  .score-pill {
+    background: var(--purple-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--purple), #c4b5fd);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-emoji { font-size: 64px; display: block; text-align: center; margin-bottom: 12px; }
+  .q-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Answer slots area */
+  .slots-area {
+    background: #f8fafc;
+    border: 2px dashed #e5e7eb;
+    border-radius: 14px;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    min-height: 56px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .slot {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    background: var(--purple);
+    color: #fff;
+    border: 2px solid var(--purple-dark);
+    cursor: pointer;
+    transition: transform 0.1s, background 0.15s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .slot:hover { transform: scale(0.95); }
+  .slot:active { transform: scale(0.92); }
+  .slot.syllable {
+    width: auto;
+    min-width: 48px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  .slot-empty {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+  }
+  .slot-empty.syllable {
+    width: 48px;
+    min-width: 48px;
+    padding: 0 10px;
+  }
+
+  /* Tiles area */
+  .tiles-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .tiles-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  .tile {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    background: #f9fafb;
+    border: 2.5px solid #e5e7eb;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    color: var(--text);
+  }
+  .tile:hover:not(.used) { border-color: var(--purple); background: var(--purple-light); }
+  .tile:active:not(.used) { transform: scale(0.93); }
+  .tile.used {
+    background: #f1f5f9;
+    color: #d1d5db;
+    text-decoration: line-through;
+    cursor: default;
+    border-color: #e5e7eb;
+  }
+  .tile.syllable {
+    width: auto;
+    min-width: 48px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  .tile.wrong {
+    border-color: #ef4444 !important;
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    animation: tileShake 0.4s ease;
+  }
+  @keyframes tileShake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+  .tile.tonica-correct {
+    background: var(--purple-light) !important;
+    border-color: var(--purple) !important;
+    color: var(--purple-dark) !important;
+  }
+
+  /* Feedback */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .fb-header { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: #15803d; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #15803d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Options (Section 3 multiple choice) */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--purple);
+    background: var(--purple-light);
+    transform: scale(1.02);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { cursor: default; }
+  .opt-btn.wrong {
+    animation: tileShake 0.4s ease;
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #b91c1c;
+  }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: 'Nunito', sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--purple-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #5b21b6; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--purple-dark); margin-bottom: 6px; }
+  .result-count { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--purple-light);
+    border: 6px solid var(--purple);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--purple-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--purple-dark); font-weight: 700; }
+  .result-msg { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--purple-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--purple-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--purple); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: 'Nunito', sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: 'Nunito', sans-serif; }
+  .start-btn {
+    background: var(--purple-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #5b21b6; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .tile, .slot, .slot-empty { width: 30px; height: 30px; font-size: 12px; border-radius: 8px; }
+    .tile.syllable, .slot.syllable, .slot-empty.syllable { min-width: 38px; font-size: 11px; padding: 0 7px; }
+    .q-emoji { font-size: 52px; }
+    .opt-btn { font-size: 15px; padding: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 📚</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const SILABAS = [
+  { palavra: "BORBOLETA",  silabas: ["bor","bo","le","ta"],  emoji: "🦋" },
+  { palavra: "SAPATO",     silabas: ["sa","pa","to"],         emoji: "👟" },
+  { palavra: "ELEFANTE",   silabas: ["e","le","fan","te"],    emoji: "🐘" },
+  { palavra: "JANELA",     silabas: ["ja","ne","la"],         emoji: "🪟" },
+  { palavra: "MARIPOSA",   silabas: ["ma","ri","po","sa"],    emoji: "🦋" },
+  { palavra: "TARTARUGA",  silabas: ["tar","ta","ru","ga"],   emoji: "🐢" },
+  { palavra: "CHOCOLATE",  silabas: ["cho","co","la","te"],   emoji: "🍫" },
+  { palavra: "COMPUTADOR", silabas: ["com","pu","ta","dor"],  emoji: "💻" },
+  { palavra: "VENTILADOR", silabas: ["ven","ti","la","dor"],  emoji: "🌀" },
+  { palavra: "BORRACHA",   silabas: ["bor","ra","cha"],       emoji: "📏" },
+];
+
+const TONICA = [
+  { palavra: "café",   silabas: ["ca","fé"],       tonicaIdx: 1, classe: "Oxítona",        def: "tônica na última sílaba" },
+  { palavra: "casa",   silabas: ["ca","sa"],        tonicaIdx: 0, classe: "Paroxítona",     def: "tônica na penúltima sílaba" },
+  { palavra: "árvore", silabas: ["ár","vo","re"],   tonicaIdx: 0, classe: "Proparoxítona",  def: "tônica na antepenúltima sílaba" },
+  { palavra: "avião",  silabas: ["a","vi","ão"],    tonicaIdx: 2, classe: "Oxítona",        def: "tônica na última sílaba" },
+  { palavra: "lápis",  silabas: ["lá","pis"],       tonicaIdx: 0, classe: "Paroxítona",     def: "tônica na penúltima sílaba" },
+  { palavra: "médico", silabas: ["mé","di","co"],   tonicaIdx: 0, classe: "Proparoxítona",  def: "tônica na antepenúltima sílaba" },
+  { palavra: "tambor", silabas: ["tam","bor"],      tonicaIdx: 1, classe: "Oxítona",        def: "tônica na última sílaba" },
+  { palavra: "fácil",  silabas: ["fá","cil"],       tonicaIdx: 0, classe: "Paroxítona",     def: "tônica na penúltima sílaba" },
+];
+
+const ACENTOS = [
+  { palavra: "café",   resposta: "Agudo (´)",       opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "avô",    resposta: "Circunflexo (^)", opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "pé",     resposta: "Agudo (´)",       opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "mês",    resposta: "Circunflexo (^)", opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "árvore", resposta: "Agudo (´)",       opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "vovô",   resposta: "Circunflexo (^)", opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "lápis",  resposta: "Agudo (´)",       opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+  { palavra: "janela", resposta: "Sem acento",       opcoes: ["Agudo (´)","Circunflexo (^)","Sem acento"] },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let sec = 1, cur = 0, score = 0;
+let tiles = [], placed = [], won = false;
+
+// ── UTILITIES ─────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── SECTION 1: SÍLABAS ───────────────────────────────────────────────
+function loadSilaba(idx) {
+  cur = idx; won = false; placed = [];
+  const item = SILABAS[idx];
+  tiles = shuffle([...item.silabas]).map(s => ({ letter: s, used: false }));
+  renderSilaba();
+}
+
+function renderSilaba() {
+  const item = SILABAS[cur];
+  const total = SILABAS.length + TONICA.length + ACENTOS.length;
+  const pct = Math.round((cur / total) * 100);
+
+  const slotsHtml = Array.from({ length: item.silabas.length }, (_, i) => {
+    if (i < placed.length) {
+      return `<div class="slot syllable" onclick="clickSlot(${i})">${placed[i].letter}</div>`;
+    } else {
+      return `<div class="slot-empty syllable"></div>`;
+    }
+  }).join('');
+
+  const tilesHtml = tiles.map((t, i) => {
+    const cls = t.used ? 'tile syllable used' : 'tile syllable';
+    const handler = t.used ? '' : `onclick="clickTile(${i})"`;
+    return `<div id="tile-${i}" class="${cls}" ${handler}>${t.letter}</div>`;
+  }).join('');
+
+  const feedbackHtml = won
+    ? `<div class="feedback-panel show ok">
+        <div class="fb-header">✓ ${item.palavra}!</div>
+       </div>`
+    : `<div class="feedback-panel" id="feedback-silaba"></div>`;
+
+  const nextClass = won ? 'next-btn show' : 'next-btn';
+  const nextLabel = cur === SILABAS.length - 1 ? 'Próxima parte →' : 'Próxima palavra →';
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Sílabas ${cur+1} de ${SILABAS.length}</div>
+    <div class="q-card">
+      <span class="q-emoji">${item.emoji}</span>
+      <div class="q-label">Monte a palavra com as sílabas em ordem:</div>
+      <div class="slots-area">${slotsHtml}</div>
+    </div>
+    <div class="tiles-label">Clique nas sílabas em ordem</div>
+    <div class="tiles-area">${tilesHtml}</div>
+    ${feedbackHtml}
+    <button class="${nextClass}" onclick="nextSilaba()">${nextLabel}</button>`;
+}
+
+function clickTile(i) {
+  if (won) return;
+  if (tiles[i].used) return;
+  const item = SILABAS[cur];
+  if (placed.length >= item.silabas.length) return;
+
+  const expected = item.silabas[placed.length];
+
+  if (tiles[i].letter !== expected) {
+    const el = document.getElementById('tile-' + i);
+    if (el) {
+      el.classList.remove('wrong');
+      void el.offsetWidth;
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 450);
+    }
+    return;
+  }
+
+  tiles[i].used = true;
+  placed.push({ tileIdx: i, letter: tiles[i].letter });
+
+  if (placed.length === item.silabas.length) {
+    won = true;
+    score += 10;
+    document.getElementById('score-val').textContent = score;
+  }
+
+  renderSilaba();
+}
+
+function clickSlot(j) {
+  if (won) return;
+  const removed = placed.splice(j);
+  removed.forEach(p => { tiles[p.tileIdx].used = false; });
+  renderSilaba();
+}
+
+function nextSilaba() {
+  cur++;
+  if (cur >= SILABAS.length) { showTransitionTonica(); return; }
+  loadSilaba(cur);
+}
+
+// ── SECTION 2: TÔNICA ────────────────────────────────────────────────
+function showTransitionTonica() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🎯</span>
+        <div class="transition-title">Ótimo!</div>
+        <div class="transition-sub">Agora clique na sílaba tônica de cada palavra!</div>
+      </div>
+      <button class="continue-btn" onclick="startTonica()">Continuar →</button>
+    </div>`;
+}
+
+function startTonica() { sec = 2; cur = 0; loadTonica(0); }
+
+function loadTonica(idx) {
+  cur = idx; won = false;
+  renderTonica();
+}
+
+function renderTonica() {
+  const item = TONICA[cur];
+  const total = SILABAS.length + TONICA.length + ACENTOS.length;
+  const pct = Math.round(((SILABAS.length + cur) / total) * 100);
+
+  const tilesHtml = item.silabas.map((s, i) =>
+    `<div class="tile syllable ${won && i === item.tonicaIdx ? 'tonica-correct' : ''}"
+          id="tt-${i}"
+          onclick="${won ? '' : `clickTonica(${i})`}"
+          style="cursor:${won ? 'default' : 'pointer'}">${s}</div>`
+  ).join('');
+
+  const feedbackHtml = won
+    ? `<div class="feedback-panel show ok">
+        <div class="fb-header">✓ ${item.classe}: ${item.def}!</div>
+       </div>`
+    : `<div class="feedback-panel" id="feedback-tonica"></div>`;
+
+  const nextClass = won ? 'next-btn show' : 'next-btn';
+  const nextLabel = cur === TONICA.length - 1 ? 'Próxima parte →' : 'Próxima palavra →';
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Sílaba Tônica ${cur+1} de ${TONICA.length}</div>
+    <div class="q-card">
+      <div class="q-label">Clique na sílaba tônica:</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:36px;text-align:center;margin-bottom:16px;color:var(--purple-dark)">${item.palavra}</div>
+      <div class="tiles-area">${tilesHtml}</div>
+    </div>
+    ${feedbackHtml}
+    <button class="${nextClass}" onclick="nextTonica()">${nextLabel}</button>`;
+}
+
+function clickTonica(i) {
+  if (won) return;
+  const item = TONICA[cur];
+  if (i === item.tonicaIdx) {
+    won = true; score += 10;
+    document.getElementById('score-val').textContent = score;
+    renderTonica();
+  } else {
+    const el = document.getElementById('tt-' + i);
+    el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 450);
+  }
+}
+
+function nextTonica() {
+  cur++;
+  if (cur >= TONICA.length) { showTransitionAcento(); return; }
+  loadTonica(cur);
+}
+
+// ── SECTION 3: ACENTOS ───────────────────────────────────────────────
+function showTransitionAcento() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">✏️</span>
+        <div class="transition-title">Mandou bem!</div>
+        <div class="transition-sub">Última parte: identifique o tipo de acento!</div>
+      </div>
+      <button class="continue-btn" onclick="startAcento()">Continuar →</button>
+    </div>`;
+}
+
+function startAcento() { sec = 3; cur = 0; loadAcento(0); }
+
+function loadAcento(idx) {
+  cur = idx; won = false;
+  renderAcento();
+}
+
+function renderAcento() {
+  const item = ACENTOS[cur];
+  const total = SILABAS.length + TONICA.length + ACENTOS.length;
+  const pct = Math.round(((SILABAS.length + TONICA.length + cur) / total) * 100);
+  const optsHtml = item.opcoes.map(op =>
+    `<button class="opt-btn" onclick="clickAcento(this,'${op}')">${op}</button>`
+  ).join('');
+  const nextLabel = cur === ACENTOS.length - 1 ? 'Ver resultado 🏆' : 'Próxima →';
+
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Acentos ${cur+1} de ${ACENTOS.length}</div>
+    <div class="q-card">
+      <div class="q-label">Que tipo de acento tem a palavra:</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:40px;text-align:center;margin:16px 0;color:var(--purple-dark)">${item.palavra}</div>
+    </div>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback-panel" id="feedback-acento"></div>
+    <button class="next-btn" id="next-acento" onclick="nextAcento()">${nextLabel}</button>`;
+}
+
+function clickAcento(btn, opcao) {
+  if (won) return;
+  const item = ACENTOS[cur];
+  const allBtns = document.querySelectorAll('.opt-btn');
+  if (opcao === item.resposta) {
+    won = true; score += 10;
+    document.getElementById('score-val').textContent = score;
+    btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
+    document.getElementById('feedback-acento').className = 'feedback-panel show ok';
+    document.getElementById('feedback-acento').innerHTML = `<div class="fb-header">✓ Correto!</div>`;
+    document.getElementById('next-acento').className = 'next-btn show';
+    allBtns.forEach(b => b.disabled = true);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      btn.style.background = '#fee2e2';
+      btn.style.borderColor = '#ef4444';
+      btn.style.color = '#b91c1c';
+    }, 450);
+  }
+}
+
+function nextAcento() {
+  cur++;
+  if (cur >= ACENTOS.length) { showResult(); return; }
+  loadAcento(cur);
+}
+
+// ── RESULT SCREEN ────────────────────────────────────────────────────
+function showResult() {
+  const total = SILABAS.length + TONICA.length + ACENTOS.length;
+  const correct = score / 10;
+  let msg;
+  if (correct === total)            msg = "Perfeito! Tudo certo! 🌟";
+  else if (correct >= total * 0.8)  msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= total * 0.6)  msg = "Bom trabalho! Continue praticando! 📚";
+  else                              msg = "Continue tentando — você vai melhorar! 🌈";
+
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de ${total} questões!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+// ── START SCREEN ──────────────────────────────────────────────────────
+function startScreen() {
+  cur = 0; score = 0; sec = 1;
+  document.getElementById('score-val').textContent = 0;
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🔤</span>
+      <div class="start-title">Sons e <span>Sílabas!</span></div>
+      <div class="start-sub">Separa sílabas, descobre a tônica e identifica acentos!</div>
+      <div class="start-facts">
+        <div class="start-fact">🔤 10 palavras</div>
+        <div class="start-fact">🎯 8 tônicas</div>
+        <div class="start-fact">✏️ 8 acentos</div>
+      </div>
+      <button class="start-btn" onclick="loadSilaba(0)">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
