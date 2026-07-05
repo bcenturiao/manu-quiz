@@ -332,36 +332,36 @@
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────
 const NUM_SILABAS = [
-  { palavra: "sol",        silabas: ["sol"],                    classe: "Monossílaba" },
-  { palavra: "giz",        silabas: ["giz"],                    classe: "Monossílaba" },
   { palavra: "anel",       silabas: ["a","nel"],                classe: "Dissílaba" },
-  { palavra: "senhor",     silabas: ["se","nhor"],              classe: "Dissílaba" },
-  { palavra: "fácil",      silabas: ["fá","cil"],               classe: "Dissílaba" },
+  { palavra: "sol",        silabas: ["sol"],                    classe: "Monossílaba" },
   { palavra: "pêssego",    silabas: ["pês","se","go"],          classe: "Trissílaba" },
-  { palavra: "felicidade", silabas: ["fe","li","ci","da","de"], classe: "Polissílaba" },
+  { palavra: "fácil",      silabas: ["fá","cil"],               classe: "Dissílaba" },
   { palavra: "matemática", silabas: ["ma","te","má","ti","ca"], classe: "Polissílaba" },
+  { palavra: "giz",        silabas: ["giz"],                    classe: "Monossílaba" },
+  { palavra: "senhor",     silabas: ["se","nhor"],              classe: "Dissílaba" },
+  { palavra: "felicidade", silabas: ["fe","li","ci","da","de"], classe: "Polissílaba" },
 ];
 
 const ORTOGRAFIA_RR = [
   { palavra: "borracha", exibicao: "BO___ACHA",  resposta: "RR", regra: "Entre vogais, som forte de R → sempre RR." },
-  { palavra: "arroz",    exibicao: "A___OZ",     resposta: "RR", regra: "Depois de vogal, som forte de R → sempre RR." },
-  { palavra: "cachorro", exibicao: "CACHO___O",  resposta: "RR", regra: "Entre vogais, som forte de R → sempre RR." },
-  { palavra: "garrafa",  exibicao: "GA___AFA",   resposta: "RR", regra: "Entre vogais, som forte de R → sempre RR." },
   { palavra: "rápido",   exibicao: "___ÁPIDO",   resposta: "R",  regra: "No começo da palavra, usa-se sempre R." },
-  { palavra: "Henrique", exibicao: "HEN___IQUE", resposta: "R",  regra: "Depois de consoante (N), usa-se sempre R." },
+  { palavra: "cachorro", exibicao: "CACHO___O",  resposta: "RR", regra: "Entre vogais, som forte de R → sempre RR." },
   { palavra: "pirulito", exibicao: "PI___ULITO", resposta: "R",  regra: "Entre vogais, som fraco de R → um só R." },
+  { palavra: "garrafa",  exibicao: "GA___AFA",   resposta: "RR", regra: "Entre vogais, som forte de R → sempre RR." },
+  { palavra: "Henrique", exibicao: "HEN___IQUE", resposta: "R",  regra: "Depois de consoante (N), usa-se sempre R." },
+  { palavra: "arroz",    exibicao: "A___OZ",     resposta: "RR", regra: "Depois de vogal, som forte de R → sempre RR." },
   { palavra: "coruja",   exibicao: "CO___UJA",   resposta: "R",  regra: "Entre vogais, som fraco de R → um só R." },
 ];
 
 const TIPOS_FRASE = [
   { frase: "O sol está brilhando hoje.",        resposta: "Afirmativa",    explicacao: "afirma algo, sem negar nada." },
-  { frase: "Eu gosto de sorvete de chocolate.", resposta: "Afirmativa",    explicacao: "afirma algo, sem negar nada." },
   { frase: "Ela não foi à escola hoje.",        resposta: "Negativa",      explicacao: "tem uma palavra de negação (não)." },
-  { frase: "O menino nunca chega atrasado.",    resposta: "Negativa",      explicacao: "tem uma palavra de negação (nunca)." },
   { frase: "Você já terminou a lição?",         resposta: "Interrogativa", explicacao: "faz uma pergunta." },
-  { frase: "Onde você mora?",                   resposta: "Interrogativa", explicacao: "faz uma pergunta." },
   { frase: "Que dia lindo!",                    resposta: "Exclamativa",   explicacao: "expressa emoção ou surpresa." },
+  { frase: "O menino nunca chega atrasado.",    resposta: "Negativa",      explicacao: "tem uma palavra de negação (nunca)." },
+  { frase: "Eu gosto de sorvete de chocolate.", resposta: "Afirmativa",    explicacao: "afirma algo, sem negar nada." },
   { frase: "Como essa flor é cheirosa!",        resposta: "Exclamativa",   explicacao: "expressa emoção ou surpresa." },
+  { frase: "Onde você mora?",                   resposta: "Interrogativa", explicacao: "faz uma pergunta." },
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────
