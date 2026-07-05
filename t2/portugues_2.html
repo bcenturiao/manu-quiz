@@ -354,16 +354,19 @@ const ARTIGOS_PRONOMES = [
 ];
 
 const ADJETIVOS = [
-  { frase: "O gato preto dormiu na cama.",         resposta: "preto",    opcoes: ["gato","preto","dormiu","cama"] },
-  { frase: "A menina feliz ganhou um presente.",   resposta: "feliz",    opcoes: ["menina","feliz","ganhou","presente"] },
-  { frase: "O gato gordo dormiu na cama.",         resposta: "gordo",    opcoes: ["gato","gordo","dormiu","cama"] },
-  { frase: "Ela tem um vestido vermelho.",         resposta: "vermelho", opcoes: ["vestido","vermelho","tem","ela"] },
-  { frase: "O cachorro grande latiu muito.",       resposta: "grande",   opcoes: ["cachorro","grande","latiu","muito"] },
-  { frase: "A borboleta colorida voou alto.",      resposta: "colorida", opcoes: ["borboleta","colorida","voou","alto"] },
+  { frase: "O gato preto dormiu na cama.",                 resposta: "preto",       opcoes: ["gato","preto","dormiu","cama"],                  tipo: "Cor" },
+  { frase: "Ela tem um vestido vermelho.",                 resposta: "vermelho",    opcoes: ["vestido","vermelho","tem","ela"],                tipo: "Cor" },
+  { frase: "O cachorro grande latiu muito.",               resposta: "grande",      opcoes: ["cachorro","grande","latiu","muito"],             tipo: "Tamanho" },
+  { frase: "O prédio alto tocava o céu.",                  resposta: "alto",        opcoes: ["prédio","alto","tocava","céu"],                  tipo: "Tamanho" },
+  { frase: "Ela tem um coração bondoso.",                  resposta: "bondoso",     opcoes: ["coração","bondoso","tem","ela"],                 tipo: "Qualidade" },
+  { frase: "O menino inteligente resolveu o problema.",    resposta: "inteligente", opcoes: ["menino","inteligente","resolveu","problema"],    tipo: "Qualidade" },
+  { frase: "A menina feliz ganhou um presente.",           resposta: "feliz",       opcoes: ["menina","feliz","ganhou","presente"],            tipo: "Estado" },
+  { frase: "O cachorro estava cansado depois do passeio.", resposta: "cansado",     opcoes: ["cachorro","estava","cansado","passeio"],         tipo: "Estado" },
 ];
+const TIPOS_ADJETIVO = ["Cor", "Tamanho", "Qualidade", "Estado"];
 
 // ── STATE ─────────────────────────────────────────────────────────────
-let sec = 1, cur = 0, score = 0, won = false;
+let sec = 1, cur = 0, score = 0, won = false, correctCount = 0, adjStep = 'find';
 
 // ── SECTION 1: SUBSTANTIVOS ──────────────────────────────────────────
 function renderSubstantivo() {
@@ -391,7 +394,7 @@ function clickSubst(btn, opcao) {
   const item = SUBSTANTIVOS[cur];
   const allBtns = document.querySelectorAll('.opt-btn');
   if (opcao === item.resposta) {
-    won = true; score += 10; document.getElementById('score-val').textContent = score;
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
     btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
     document.getElementById('fb').className = 'feedback-panel show ok';
     document.getElementById('fb').innerHTML = `<div class="fb-header">✓ ${item.resposta}! ${item.dica}</div>`;
@@ -453,7 +456,7 @@ function clickAP(btn, opcao) {
   const item = ARTIGOS_PRONOMES[cur];
   const allBtns = document.querySelectorAll('.opt-btn');
   if (opcao === item.resposta) {
-    won = true; score += 10; document.getElementById('score-val').textContent = score;
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
     btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
     document.getElementById('fb').className = 'feedback-panel show ok';
     document.getElementById('fb').innerHTML = `<div class="fb-header">✓ ${item.resposta}! ${item.dica}</div>`;
@@ -485,25 +488,42 @@ function showTransitionAdj() {
 
 function startAdj() { sec = 3; cur = 0; won = false; renderAdjetivo(); }
 
-// ── SECTION 3: ADJETIVOS ─────────────────────────────────────────────
+// ── SECTION 3: ADJETIVOS (2 passos: achar + classificar) ────────────
 function renderAdjetivo() {
   const item = ADJETIVOS[cur];
   const total = SUBSTANTIVOS.length + ARTIGOS_PRONOMES.length + ADJETIVOS.length;
   const pct = Math.round(((SUBSTANTIVOS.length + ARTIGOS_PRONOMES.length + cur) / total) * 100);
-  const optsHtml = item.opcoes.map(op =>
-    `<button class="opt-btn" onclick="clickAdj(this,'${op}')">${op}</button>`
-  ).join('');
   const nextLabel = cur === ADJETIVOS.length - 1 ? 'Ver resultado 🏆' : 'Próxima →';
-  document.getElementById('app').innerHTML = `
-    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
-    <div class="progress-label">Adjetivos ${cur+1} de ${ADJETIVOS.length}</div>
-    <div class="q-card">
-      <div class="q-label">Qual palavra é o adjetivo?</div>
-      <div class="q-text" style="font-style:italic">"${item.frase}"</div>
-    </div>
-    <div class="options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${optsHtml}</div>
-    <div class="feedback-panel" id="fb"></div>
-    <button class="next-btn" id="next-btn" onclick="nextAdj()">${nextLabel}</button>`;
+
+  if (adjStep === 'find') {
+    const optsHtml = item.opcoes.map(op =>
+      `<button class="opt-btn" onclick="clickAdj(this,'${op}')">${op}</button>`
+    ).join('');
+    document.getElementById('app').innerHTML = `
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">Adjetivos ${cur+1} de ${ADJETIVOS.length}</div>
+      <div class="q-card">
+        <div class="q-label">Qual palavra é o adjetivo?</div>
+        <div class="q-text" style="font-style:italic">"${item.frase}"</div>
+      </div>
+      <div class="options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${optsHtml}</div>
+      <div class="feedback-panel" id="fb"></div>
+      <button class="next-btn" id="next-btn" onclick="nextAdj()">${nextLabel}</button>`;
+  } else {
+    const optsHtml = TIPOS_ADJETIVO.map(tp =>
+      `<button class="opt-btn" onclick="clickAdjTipo(this,'${tp}')">${tp}</button>`
+    ).join('');
+    document.getElementById('app').innerHTML = `
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">Adjetivos ${cur+1} de ${ADJETIVOS.length}</div>
+      <div class="q-card">
+        <div class="q-label">Que tipo de adjetivo é "${item.resposta}"?</div>
+        <div class="q-text" style="font-style:italic">"${item.frase}"</div>
+      </div>
+      <div class="options" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">${optsHtml}</div>
+      <div class="feedback-panel" id="fb"></div>
+      <button class="next-btn" id="next-btn" onclick="nextAdj()">${nextLabel}</button>`;
+  }
 }
 
 function clickAdj(btn, opcao) {
@@ -511,10 +531,23 @@ function clickAdj(btn, opcao) {
   const item = ADJETIVOS[cur];
   const allBtns = document.querySelectorAll('.opt-btn');
   if (opcao === item.resposta) {
-    won = true; score += 10; document.getElementById('score-val').textContent = score;
+    score += 10; document.getElementById('score-val').textContent = score;
+    adjStep = 'classify';
+    renderAdjetivo();
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function clickAdjTipo(btn, tipo) {
+  if (won) return;
+  const item = ADJETIVOS[cur];
+  const allBtns = document.querySelectorAll('.opt-btn');
+  if (tipo === item.tipo) {
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
     btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
     document.getElementById('fb').className = 'feedback-panel show ok';
-    document.getElementById('fb').innerHTML = `<div class="fb-header">✓ "${opcao}" é o adjetivo!</div>`;
+    document.getElementById('fb').innerHTML = `<div class="fb-header">✓ "${item.resposta}" é um adjetivo de ${item.tipo}!</div>`;
     document.getElementById('next-btn').className = 'next-btn show';
     allBtns.forEach(b => b.disabled = true);
   } else {
@@ -523,7 +556,7 @@ function clickAdj(btn, opcao) {
 }
 
 function nextAdj() {
-  cur++; won = false;
+  cur++; won = false; adjStep = 'find';
   if (cur >= ADJETIVOS.length) { showResult(); return; }
   renderAdjetivo();
 }
@@ -531,7 +564,7 @@ function nextAdj() {
 // ── RESULT SCREEN ─────────────────────────────────────────────────────
 function showResult() {
   const total = SUBSTANTIVOS.length + ARTIGOS_PRONOMES.length + ADJETIVOS.length;
-  const correct = score / 10;
+  const correct = correctCount;
   let msg;
   if (correct === total)           msg = "Perfeito! Você sabe tudo sobre classes de palavras! 🌟";
   else if (correct >= total * 0.8) msg = "Muito bem! Quase tudo certo! 💪";
@@ -553,7 +586,7 @@ function showResult() {
 
 // ── START SCREEN ──────────────────────────────────────────────────────
 function startScreen() {
-  sec = 1; cur = 0; score = 0; won = false;
+  sec = 1; cur = 0; score = 0; won = false; correctCount = 0; adjStep = 'find';
   document.getElementById('score-val').textContent = 0;
   document.getElementById('app').innerHTML = `
     <div class="start-screen">
@@ -563,7 +596,7 @@ function startScreen() {
       <div class="start-facts">
         <div class="start-fact">📦 8 substantivos</div>
         <div class="start-fact">📌 8 artigos/pronomes</div>
-        <div class="start-fact">🌟 6 adjetivos</div>
+        <div class="start-fact">🌟 8 adjetivos</div>
       </div>
       <button class="start-btn" onclick="renderSubstantivo()">Vamos começar! 🚀</button>
     </div>`;
