@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Estudos Sociais: Pelotas — Símbolos e Lugares</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #f97316;
+    --orange-dark: #ea580c;
+    --orange-light: #ffedd5;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #fed7aa;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--orange-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--orange); }
+  .score-pill {
+    background: var(--orange-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--orange), #fdba74);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .q-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--orange);
+    background: var(--orange-light);
+    transform: scale(1.02);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { cursor: default; }
+
+  /* Feedback panel */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: var(--orange-light); border: 2px solid var(--orange-dark); }
+  .fb-header { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: var(--orange-dark); }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: var(--orange-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    margin-top: 4px;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #c2410c; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: 'Nunito', sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--orange-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #c2410c; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--orange-dark); margin-bottom: 6px; }
+  .result-count { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--orange-light);
+    border: 6px solid var(--orange);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--orange-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--orange-dark); font-weight: 700; }
+  .result-msg { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--orange-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--orange-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--orange); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: 'Nunito', sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: 'Nunito', sans-serif; }
+  .start-btn {
+    background: var(--orange-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #c2410c; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .opt-btn { font-size: 15px; padding: 14px; }
+    .q-text { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🛡️</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const BRASAO = [
+  { pergunta: "O que significa a coroa no Brasão de Pelotas?", resposta: "Princesa do Sul" },
+  { pergunta: "O que significa a espiga de arroz no Brasão de Pelotas?", resposta: "Produção de arroz" },
+  { pergunta: "O que significa a pelota (barquinho) no Brasão de Pelotas?", resposta: "Embarcação de couro" },
+  { pergunta: "O que significa o ramo de louros no Brasão de Pelotas?", resposta: "Riqueza, glória e vitórias" },
+  { pergunta: "O que significa o bovino no Brasão de Pelotas?", resposta: "Charqueadas" },
+  { pergunta: "O que significa o obelisco no Brasão de Pelotas?", resposta: "História" },
+  { pergunta: "O que significa a cruz de malta no Brasão de Pelotas?", resposta: "Colonização portuguesa" },
+];
+const OPCOES_BRASAO = ["Princesa do Sul", "Produção de arroz", "Embarcação de couro", "Riqueza, glória e vitórias", "Charqueadas", "História", "Colonização portuguesa"];
+
+const INDUSTRIA = [
+  { pergunta: "Qual destas é uma indústria de Pelotas?", resposta: "Zezé", opcoes: ["Nestlé","Zezé","Sadia"] },
+  { pergunta: "Qual destas também é uma indústria de Pelotas?", resposta: "Biri", opcoes: ["Biri","Parmalat","Perdigão"] },
+  { pergunta: "Qual destas é uma indústria de Pelotas ligada à produção de arroz?", resposta: "Josapar", opcoes: ["Camil","Josapar","Tio João"] },
+  { pergunta: "Qual destas é uma indústria de Pelotas ligada a conservas?", resposta: "Oderich", opcoes: ["Bunge","Cargill","Oderich"] },
+  { pergunta: "Qual destes é um produto produzido em Pelotas?", resposta: "Bolacha", opcoes: ["Bolacha","Celular","Automóvel"] },
+  { pergunta: "Qual destes também é produzido em Pelotas?", resposta: "Óleo", opcoes: ["Roupa de frio","Óleo","Brinquedo"] },
+  { pergunta: "Qual bebida também é produzida em Pelotas?", resposta: "Refrigerante", opcoes: ["Refrigerante","Sapato","Computador"] },
+  { pergunta: "Qual doce é uma marca registrada de Pelotas?", resposta: "Doces", opcoes: ["Tênis","Livro","Doces"] },
+  { pergunta: "Qual cereal também é produzido em Pelotas?", resposta: "Arroz", opcoes: ["Arroz","Vidro","Papel"] },
+];
+
+const LUGARES = [
+  { pergunta: "Qual é a moeda usada no Brasil?", resposta: "Real", opcoes: ["Peso","Dólar","Real"] },
+  { pergunta: "Qual é a praia de Pelotas?", resposta: "Praia do Laranjal", opcoes: ["Praia do Laranjal","Praia de Copacabana","Praia Grande"] },
+  { pergunta: "Qual é um dos teatros de Pelotas?", resposta: "Teatro 7 de Abril", opcoes: ["Teatro Municipal","Teatro 7 de Abril","Teatro Amazonas"] },
+  { pergunta: "Qual é o outro teatro de Pelotas?", resposta: "Teatro Guarany", opcoes: ["Teatro Guarany","Teatro Colón","Teatro Municipal"] },
+  { pergunta: "Qual é o nome da Catedral de Pelotas?", resposta: "Catedral São Francisco de Paula", opcoes: ["Catedral São Francisco de Paula","Catedral Metropolitana","Catedral Nossa Senhora"] },
+  { pergunta: "Qual é o museu localizado no bairro Areal?", resposta: "Museu da Baronesa", opcoes: ["Museu Histórico","Museu da Baronesa","Museu de Arte"] },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let sec = 1, cur = 0, score = 0, won = false, correctCount = 0;
+
+// ── SECTION 1: O BRASÃO DE PELOTAS ────────────────────────────────────
+function renderBrasao() {
+  const item = BRASAO[cur];
+  const total = BRASAO.length + INDUSTRIA.length + LUGARES.length;
+  const pct = Math.round((cur / total) * 100);
+  const optsHtml = OPCOES_BRASAO.map(op =>
+    `<button class="opt-btn" onclick="clickBrasao(this,'${op}')">${op}</button>`
+  ).join('');
+  const nextLabel = cur === BRASAO.length - 1 ? 'Próxima parte →' : 'Próxima →';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">O Brasão de Pelotas ${cur+1} de ${BRASAO.length}</div>
+    <div class="q-card">
+      <div class="q-label">Responda:</div>
+      <div class="q-text">${item.pergunta}</div>
+    </div>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextBrasao()">${nextLabel}</button>`;
+}
+
+function clickBrasao(btn, opcao) {
+  if (won) return;
+  const item = BRASAO[cur];
+  const allBtns = document.querySelectorAll('.opt-btn');
+  if (opcao === item.resposta) {
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
+    btn.style.background = '#ffedd5'; btn.style.borderColor = '#ea580c';
+    document.getElementById('fb').className = 'feedback-panel show ok';
+    document.getElementById('fb').innerHTML = `<div class="fb-header">✓ ${item.resposta}!</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    allBtns.forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextBrasao() {
+  cur++; won = false;
+  if (cur >= BRASAO.length) { showTransitionIndustria(); return; }
+  renderBrasao();
+}
+
+// ── TRANSITION: INDÚSTRIAS E PRODUTOS ─────────────────────────────────
+function showTransitionIndustria() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🏭</span>
+        <div class="transition-title">Muito bem!</div>
+        <div class="transition-sub">Agora vamos falar das indústrias e produtos de Pelotas!</div>
+      </div>
+      <button class="continue-btn" onclick="startIndustria()">Continuar →</button>
+    </div>`;
+}
+
+function startIndustria() { sec = 2; cur = 0; won = false; renderIndustria(); }
+
+// ── SECTION 2: INDÚSTRIAS E PRODUTOS DE PELOTAS ───────────────────────
+function renderIndustria() {
+  const item = INDUSTRIA[cur];
+  const total = BRASAO.length + INDUSTRIA.length + LUGARES.length;
+  const pct = Math.round(((BRASAO.length + cur) / total) * 100);
+  const optsHtml = item.opcoes.map(op =>
+    `<button class="opt-btn" onclick="clickIndustria(this,'${op}')">${op}</button>`
+  ).join('');
+  const nextLabel = cur === INDUSTRIA.length - 1 ? 'Próxima parte →' : 'Próxima →';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Indústrias e Produtos ${cur+1} de ${INDUSTRIA.length}</div>
+    <div class="q-card">
+      <div class="q-label">Responda:</div>
+      <div class="q-text">${item.pergunta}</div>
+    </div>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextIndustria()">${nextLabel}</button>`;
+}
+
+function clickIndustria(btn, opcao) {
+  if (won) return;
+  const item = INDUSTRIA[cur];
+  const allBtns = document.querySelectorAll('.opt-btn');
+  if (opcao === item.resposta) {
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
+    btn.style.background = '#ffedd5'; btn.style.borderColor = '#ea580c';
+    document.getElementById('fb').className = 'feedback-panel show ok';
+    document.getElementById('fb').innerHTML = `<div class="fb-header">✓ ${item.resposta}!</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    allBtns.forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextIndustria() {
+  cur++; won = false;
+  if (cur >= INDUSTRIA.length) { showTransitionLugares(); return; }
+  renderIndustria();
+}
+
+// ── TRANSITION: LUGARES E SÍMBOLOS ────────────────────────────────────
+function showTransitionLugares() {
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">🏛️</span>
+        <div class="transition-title">Arrasou!</div>
+        <div class="transition-sub">Última parte: lugares e símbolos de Pelotas!</div>
+      </div>
+      <button class="continue-btn" onclick="startLugares()">Continuar →</button>
+    </div>`;
+}
+
+function startLugares() { sec = 3; cur = 0; won = false; renderLugares(); }
+
+// ── SECTION 3: LUGARES E SÍMBOLOS ─────────────────────────────────────
+function renderLugares() {
+  const item = LUGARES[cur];
+  const total = BRASAO.length + INDUSTRIA.length + LUGARES.length;
+  const pct = Math.round(((BRASAO.length + INDUSTRIA.length + cur) / total) * 100);
+  const optsHtml = item.opcoes.map(op =>
+    `<button class="opt-btn" onclick="clickLugares(this,'${op}')">${op}</button>`
+  ).join('');
+  const nextLabel = cur === LUGARES.length - 1 ? 'Ver resultado 🏆' : 'Próxima →';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">Lugares e Símbolos ${cur+1} de ${LUGARES.length}</div>
+    <div class="q-card">
+      <div class="q-label">Responda:</div>
+      <div class="q-text">${item.pergunta}</div>
+    </div>
+    <div class="options">${optsHtml}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextLugares()">${nextLabel}</button>`;
+}
+
+function clickLugares(btn, opcao) {
+  if (won) return;
+  const item = LUGARES[cur];
+  const allBtns = document.querySelectorAll('.opt-btn');
+  if (opcao === item.resposta) {
+    won = true; score += 10; correctCount++; document.getElementById('score-val').textContent = score;
+    btn.style.background = '#ffedd5'; btn.style.borderColor = '#ea580c';
+    document.getElementById('fb').className = 'feedback-panel show ok';
+    document.getElementById('fb').innerHTML = `<div class="fb-header">✓ ${item.resposta}!</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    allBtns.forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextLugares() {
+  cur++; won = false;
+  if (cur >= LUGARES.length) { showResult(); return; }
+  renderLugares();
+}
+
+// ── RESULT SCREEN ─────────────────────────────────────────────────────
+function showResult() {
+  const total = BRASAO.length + INDUSTRIA.length + LUGARES.length;
+  const correct = correctCount;
+  let msg;
+  if (correct === total)           msg = "Perfeito! Você é expert em Pelotas! 🌟";
+  else if (correct >= total * 0.8) msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= total * 0.6) msg = "Bom trabalho! Continue praticando! 📚";
+  else                             msg = "Continue tentando — você vai melhorar! 🌈";
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de ${total} questões!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+// ── START SCREEN ──────────────────────────────────────────────────────
+function startScreen() {
+  sec = 1; cur = 0; score = 0; won = false; correctCount = 0;
+  document.getElementById('score-val').textContent = 0;
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">🛡️</span>
+      <div class="start-title">Pelotas: <span>Símbolos e Lugares!</span></div>
+      <div class="start-sub">Descubra o significado do Brasão, as indústrias, os produtos e os lugares mais importantes de Pelotas!</div>
+      <div class="start-facts">
+        <div class="start-fact">🛡️ 7 brasão</div>
+        <div class="start-fact">🏭 9 indústrias</div>
+        <div class="start-fact">🏛️ 6 lugares</div>
+      </div>
+      <button class="start-btn" onclick="renderBrasao()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
