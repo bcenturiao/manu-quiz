@@ -118,7 +118,11 @@
     font-weight: 600;
   }
 
-  /* ---- SUBJECT SECTION ---- */
+  @media (max-width: 420px) {
+  .tab-btn { padding: 6px 12px; font-size: 13px; }
+}
+
+/* ---- SUBJECT SECTION ---- */
   .subject {
     margin-bottom: 28px;
   }
@@ -226,13 +230,57 @@
     <div class="logo">Manu<span>Quiz</span> 🌟</div>
     <div class="tabs">
       <button class="tab-btn" id="btn-t1" onclick="showTab('t1')">📅 1º Trimestre</button>
-      <button class="tab-btn active" id="btn-t2" onclick="showTab('t2')">📅 2º Trimestre</button>
+      <button class="tab-btn" id="btn-t2" onclick="showTab('t2')">📅 2º Trimestre</button>
+      <button class="tab-btn active" id="btn-t3" onclick="showTab('t3')">📅 3º Trimestre</button>
     </div>
     <div class="header-sub">3ª série · Escola Érico Veríssimo</div>
   </div>
 
-  <!-- 2º TRIMESTRE (ativo por padrão) -->
-  <div id="tab-t2">
+  <!-- 3º TRIMESTRE (ativo por padrão) -->
+  <div id="tab-t3">
+    <!-- PORTUGUÊS -->
+    <div class="subject">
+      <div class="subject-header">
+        <div class="subject-dot purple"></div>
+        <div class="subject-title">Português</div>
+      </div>
+      <a href="t3/portugues_1.html" class="quiz-card purple">
+        <div class="quiz-emoji">🏃</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Verbos</div>
+          <div class="quiz-meta">24 questões · infinitivo, tempo verbal e tipo de verbo</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+      <a href="t3/portugues_2.html" class="quiz-card purple">
+        <div class="quiz-emoji">🔤</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Sílabas e Palavras</div>
+          <div class="quiz-meta">24 questões · sílaba tônica, acentos, sinônimos e antônimos</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+      <a href="t3/portugues_3.html" class="quiz-card purple">
+        <div class="quiz-emoji">📚</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Classes de Palavras</div>
+          <div class="quiz-meta">28 questões · substantivos, artigos, adjetivos, pronomes e plural</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+      <a href="t3/portugues_4.html" class="quiz-card purple">
+        <div class="quiz-emoji">📖</div>
+        <div class="quiz-info">
+          <div class="quiz-name">Leitura e Interpretação</div>
+          <div class="quiz-meta">12 questões · 2 textos para ler e responder</div>
+        </div>
+        <div class="quiz-arrow">›</div>
+      </a>
+    </div>
+  </div><!-- /tab-t3 -->
+
+  <!-- 2º TRIMESTRE -->
+  <div id="tab-t2" style="display:none">
     <!-- PORTUGUÊS -->
     <div class="subject">
       <div class="subject-header">
@@ -490,10 +538,10 @@
 </div>
 <script>
   function showTab(id) {
-    document.getElementById('tab-t1').style.display = id === 't1' ? 'block' : 'none';
-    document.getElementById('tab-t2').style.display = id === 't2' ? 'block' : 'none';
-    document.getElementById('btn-t1').classList.toggle('active', id === 't1');
-    document.getElementById('btn-t2').classList.toggle('active', id === 't2');
+    ['t1', 't2', 't3'].forEach(t => {
+      document.getElementById('tab-' + t).style.display = id === t ? 'block' : 'none';
+      document.getElementById('btn-' + t).classList.toggle('active', id === t);
+    });
   }
 </script>
 </body>
