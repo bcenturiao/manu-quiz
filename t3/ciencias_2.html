@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Ciências: Planeta Terra</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --green-light: #dcfce7;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #bbf7d0;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--green-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--green); }
+  .score-pill {
+    background: var(--green-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--green), #86efac);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .q-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--green);
+    background: var(--green-light);
+    transform: scale(1.02);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { cursor: default; }
+
+  /* Feedback panel */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .fb-header { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: #15803d; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    margin-top: 4px;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #15803d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: 'Nunito', sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--green-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #15803d; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--green-dark); margin-bottom: 6px; }
+  .result-count { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--green-light);
+    border: 6px solid var(--green);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--green-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--green-dark); font-weight: 700; }
+  .result-msg { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--green-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--green-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--green); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: 'Nunito', sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: 'Nunito', sans-serif; }
+  .start-btn {
+    background: var(--green-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #15803d; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .opt-btn { font-size: 15px; padding: 14px; }
+    .q-text { font-size: 15px; }
+  }
+  .q-text b { color: #16a34a; }
+  .q-label b { color: #16a34a; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🌍</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const mk = (label, items, extra = {}) => Object.assign({
+  label: label + " ·",
+  items,
+  question: it => card(label, qtext(it.q)),
+  options: it => it.o,
+  answer: it => it.a,
+  feedback: it => `✓ ${it.a} — ${it.f}.`,
+}, extra);
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const CAMADA = ["Crosta","Manto","Núcleo"];
+const ESFERA = ["Atmosfera","Hidrosfera","Crosta terrestre","Núcleo"];
+
+const ESPACO = [
+  { q: "Qual é o nome do <b>nosso planeta</b>?", o: ["Marte","Júpiter","Terra","Lua"], a: "Terra", f: "nós vivemos no planeta Terra 🌍" },
+  { q: "Qual é a <b>estrela mais próxima</b> da Terra?", o: ["Sol","Lua","Marte","Vênus"], a: "Sol", f: "o Sol é uma estrela, e é a mais pertinho da Terra" },
+  { q: "Qual é o nome do <b>satélite natural</b> da Terra?", o: ["Sol","Marte","Satélite artificial","Lua"], a: "Lua", f: "a Lua gira ao redor da Terra e é o nosso satélite natural" },
+  { q: "Instrumentos lançados ao redor da Terra para <b>auxiliar a vida das pessoas</b> são os…", o: ["Planetas","Satélites artificiais","Estrelas","Cometas"], a: "Satélites artificiais", f: "eles ajudam na TV, no GPS, na internet e na previsão do tempo" },
+  { q: "O <b>Sol</b> é…", o: ["Um planeta","Um satélite","Uma estrela","Uma lua"], a: "Uma estrela", f: "o Sol é uma estrela que dá luz e calor para a Terra" },
+];
+
+const CAMADAS = [
+  { q: "O planeta Terra é formado por <b>três camadas</b>. Quais são?", o: ["Crosta, manto e núcleo","Ar, água e fogo","Areia, argila e húmus","Sol, Lua e estrelas"], a: "Crosta, manto e núcleo", f: "de fora para dentro: crosta, manto e núcleo" },
+  { q: "A camada <b>de fora</b>, formada por rochas, onde nós vivemos, é a…", o: CAMADA, a: "Crosta", f: "a crosta é a camada mais externa da Terra" },
+  { q: "A camada <b>mais interna</b> da Terra, formada por metais, é o…", o: CAMADA, a: "Núcleo", f: "o núcleo fica bem no centro da Terra" },
+  { q: "A camada <b>do meio</b>, entre a crosta e o núcleo, é o…", o: CAMADA, a: "Manto", f: "o manto fica entre a crosta e o núcleo" },
+];
+
+const ESFERAS = [
+  { q: "Camada de <b>ar</b> que envolve a Terra:", o: ESFERA, a: "Atmosfera", f: "atmosfera é a camada de ar" },
+  { q: "Formada por toda a <b>água</b> do planeta Terra:", o: ESFERA, a: "Hidrosfera", f: "hidrosfera é toda a água da Terra" },
+  { q: "Camada formada por <b>rochas</b>:", o: ESFERA, a: "Crosta terrestre", f: "a crosta terrestre é formada por rochas" },
+  { q: "Camada <b>mais interna</b> da Terra, formada por metais:", o: ESFERA, a: "Núcleo", f: "o núcleo é a parte mais de dentro da Terra" },
+  { q: "Os <b>rios, mares e oceanos</b> fazem parte da…", o: ESFERA, a: "Hidrosfera", f: "toda a água da Terra forma a hidrosfera" },
+  { q: "O <b>ar que respiramos</b> faz parte da…", o: ESFERA, a: "Atmosfera", f: "o ar que envolve a Terra é a atmosfera" },
+];
+
+const PLACAS = [
+  { q: "Como são chamadas as placas que se movimentam na <b>crosta terrestre</b> e na parte de cima do <b>manto</b>?", o: ["Placas de trânsito","Placas tectônicas","Placas de metal","Pedras preciosas"], a: "Placas tectônicas", f: "a crosta é dividida em pedaços enormes chamados placas tectônicas" },
+  { q: "Por que acontecem os <b>terremotos</b> e os <b>tsunamis</b>?", o: ["Porque chove muito","Porque a Lua gira","Porque as placas tectônicas se movem e se chocam","Porque venta forte"], a: "Porque as placas tectônicas se movem e se chocam", f: "quando as placas se movem e se chocam, a terra treme" },
+  { q: "Quando as placas se chocam e o <b>chão treme</b> forte, é um…", o: ["Tsunami","Arco-íris","Tempestade","Terremoto"], a: "Terremoto", f: "o terremoto é o tremor do chão" },
+  { q: "Quando as placas se movem no fundo do mar e formam <b>ondas gigantes</b>, é um…", o: ["Tsunami","Terremoto","Arco-íris","Furacão"], a: "Tsunami", f: "o tsunami é uma onda gigante do mar" },
+];
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+const QUIZ = {
+  logo: "🌍",
+  emoji: "🌍",
+  titleHtml: "Planeta <span>Terra!</span>",
+  sub: "Vamos revisar o Sol, a Lua, as camadas da Terra e as placas tectônicas!",
+  facts: ["🌞 Terra no espaço", "🧅 Camadas", "🌊 Ar, água e rochas", "🌋 Placas"],
+  perfectMsg: "Perfeito! Você é uma exploradora do planeta! 🚀",
+};
+
+const SECTIONS = [
+  mk("Terra no espaço", ESPACO,   { transition: { emoji: "🧅", sub: "Agora vamos descobrir as camadas da Terra." } }),
+  mk("Camadas", CAMADAS,          { transition: { emoji: "🌊", sub: "Agora relacione: ar, água, rochas e metais." } }),
+  mk("Relacione", ESFERAS,        { grid: true, transition: { emoji: "🌋", sub: "Agora as placas tectônicas, terremotos e tsunamis." } }),
+  mk("Placas", PLACAS),
+];
+
+// ── ENGINE (compartilhado pelos quizzes T3) ───────────────────────────
+let sec = 0, cur = 0, score = 0, won = false, correctCount = 0;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+const card = (label, body = '') => `<div class="q-card"><div class="q-label">${label}</div>${body}</div>`;
+const qtext = t => `<div class="q-text">${t}</div>`;
+const bigWord = (t, size = 40) => `<div style="font-family:'Fredoka One',cursive;font-size:${size}px;text-align:center;margin:16px 0;color:#16a34a;line-height:1.2">${t}</div>`;
+
+function totalQuestions() { return SECTIONS.reduce((a, s) => a + s.items.length, 0); }
+function doneBefore(s) { let n = 0; for (let i = 0; i < s; i++) n += SECTIONS[i].items.length; return n; }
+
+function render() {
+  const S = SECTIONS[sec], item = S.items[cur];
+  const pct = Math.round((doneBefore(sec) + cur) / totalQuestions() * 100);
+  const opts = S.options(item).map(op =>
+    `<button class="opt-btn" data-op="${esc(op)}" onclick="clickOpt(this)">${op}</button>`).join('');
+  const last = cur === S.items.length - 1;
+  const nextLabel = last ? (sec === SECTIONS.length - 1 ? 'Ver resultado →' : 'Próxima parte →') : 'Próxima →';
+  const gridStyle = S.grid ? ' style="display:grid;grid-template-columns:1fr 1fr;gap:10px"' : '';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${S.label} ${cur + 1} de ${S.items.length}</div>
+    ${S.question(item)}
+    <div class="options"${gridStyle}>${opts}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">${nextLabel}</button>`;
+  if (typeof window !== 'undefined') window.scrollTo(0, 0);
+}
+
+function clickOpt(btn) {
+  if (won) return;
+  const S = SECTIONS[sec], item = S.items[cur];
+  if (btn.dataset.op === S.answer(item)) {
+    won = true; score += 10; correctCount++;
+    document.getElementById('score-val').textContent = score;
+    btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
+    const fb = document.getElementById('fb');
+    fb.className = 'feedback-panel show ok';
+    fb.innerHTML = `<div class="fb-header">${S.feedback(item)}</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextQ() {
+  cur++; won = false;
+  if (cur < SECTIONS[sec].items.length) { render(); return; }
+  if (sec < SECTIONS.length - 1) showTransition(); else showResult();
+}
+
+function showTransition() {
+  const t = SECTIONS[sec].transition;
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">${t.emoji}</span>
+        <div class="transition-title">Mandou bem!</div>
+        <div class="transition-sub">${t.sub}</div>
+      </div>
+      <button class="continue-btn" onclick="startSection()">Continuar →</button>
+    </div>`;
+}
+
+function startSection() { sec++; cur = 0; won = false; render(); }
+
+function showResult() {
+  const total = totalQuestions(), correct = correctCount;
+  let msg;
+  if (correct === total)           msg = QUIZ.perfectMsg;
+  else if (correct >= total * 0.8) msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= total * 0.6) msg = "Bom trabalho! Continue praticando! 📚";
+  else                             msg = "Continue tentando — você vai melhorar! 🌈";
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de ${total} questões!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+function startScreen() {
+  sec = 0; cur = 0; score = 0; won = false; correctCount = 0;
+  document.getElementById('score-val').textContent = 0;
+  const facts = QUIZ.facts.map(f => `<div class="start-fact">${f}</div>`).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">${QUIZ.emoji}</span>
+      <div class="start-title">${QUIZ.titleHtml}</div>
+      <div class="start-sub">${QUIZ.sub}</div>
+      <div class="start-facts">${facts}</div>
+      <button class="start-btn" onclick="render()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
