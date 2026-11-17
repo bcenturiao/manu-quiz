@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Matemática: Operações e Prova Real</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --blue-light: #dbeafe;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #bfdbfe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--blue-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--blue); }
+  .score-pill {
+    background: var(--blue-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--blue), #93c5fd);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .q-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: scale(1.02);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { cursor: default; }
+
+  /* Feedback panel */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .fb-header { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: #15803d; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    margin-top: 4px;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #15803d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: 'Nunito', sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--blue-dark); margin-bottom: 6px; }
+  .result-count { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    border: 6px solid var(--blue);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--blue-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--blue-dark); font-weight: 700; }
+  .result-msg { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--blue-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--blue-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--blue); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: 'Nunito', sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: 'Nunito', sans-serif; }
+  .start-btn {
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .opt-btn { font-size: 15px; padding: 14px; }
+    .q-text { font-size: 15px; }
+  }
+  .q-text b { color: #2563eb; }
+  .q-label b { color: #2563eb; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 🧮</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const mk = (label, items, extra = {}) => Object.assign({
+  label: label + " ·",
+  items,
+  question: it => card(label, qtext(it.q)),
+  options: it => it.o,
+  answer: it => it.a,
+  feedback: it => `✓ ${it.a} — ${it.f}.`,
+}, extra);
+
+// ── DESENHOS (SVG) ────────────────────────────────────────────────────
+const BLUE = "#3b82f6", INK = "#1e3a8a";
+const svgWrap = (inner, size = 170) => `<div style="text-align:center;margin:10px 0"><svg width="${size}" height="${size}" viewBox="0 0 200 200">${inner}</svg></div>`;
+const pt = (cx, cy, r, deg) => [cx + r * Math.sin(deg * Math.PI / 180), cy - r * Math.cos(deg * Math.PI / 180)];
+
+function clockSvg(h, m) {
+  let s = `<circle cx="100" cy="100" r="92" fill="#fff" stroke="${INK}" stroke-width="6"/>`;
+  for (let i = 1; i <= 12; i++) { const [x, y] = pt(100, 100, 72, i * 30); s += `<text x="${x}" y="${y + 7}" text-anchor="middle" font-size="20" font-weight="800" font-family="Nunito,sans-serif" fill="${INK}">${i}</text>`; }
+  for (let i = 0; i < 60; i++) { if (i % 5) { const [x1, y1] = pt(100, 100, 86, i * 6), [x2, y2] = pt(100, 100, 82, i * 6); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#94a3b8" stroke-width="2"/>`; } }
+  const [hx, hy] = pt(100, 100, 42, ((h % 12) + m / 60) * 30), [mx, my] = pt(100, 100, 64, m * 6);
+  s += `<line x1="100" y1="100" x2="${hx}" y2="${hy}" stroke="${INK}" stroke-width="9" stroke-linecap="round"/>`;
+  s += `<line x1="100" y1="100" x2="${mx}" y2="${my}" stroke="${BLUE}" stroke-width="5" stroke-linecap="round"/>`;
+  return svgWrap(s + `<circle cx="100" cy="100" r="7" fill="${INK}"/>`);
+}
+
+function fracSvg(shape, n, k) {
+  let s = "";
+  if (shape === "circle") {
+    for (let i = 0; i < n; i++) {
+      const [x1, y1] = pt(100, 100, 85, i * 360 / n), [x2, y2] = pt(100, 100, 85, (i + 1) * 360 / n);
+      s += `<path d="M100 100 L${x1} ${y1} A85 85 0 ${360 / n > 180 ? 1 : 0} 1 ${x2} ${y2} Z" fill="${i < k ? BLUE : "#fff"}" stroke="${INK}" stroke-width="3"/>`;
+    }
+  } else {
+    const w = 180 / n;
+    for (let i = 0; i < n; i++) s += `<rect x="${10 + i * w}" y="55" width="${w}" height="90" fill="${i < k ? BLUE : "#fff"}" stroke="${INK}" stroke-width="3"/>`;
+  }
+  return svgWrap(s);
+}
+
+function polySvg(n) {
+  const rot = n === 4 ? 45 : (n % 2 ? 0 : 180 / n);
+  const pts = Array.from({ length: n }, (_, i) => pt(100, 104, 80, rot + i * 360 / n).join(",")).join(" ");
+  return svgWrap(`<polygon points="${pts}" fill="#dbeafe" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`, 150);
+}
+
+const fracHtml = (a, b) => `<div style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.15"><span>${a}</span><span style="border-top:4px solid currentColor;padding:0 10px">${b}</span></div>`;
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const OPS = ["Adição","Subtração","Multiplicação","Divisão"];
+
+const CONTAS = [
+  { q: "345 + 128 = ?", o: ["463","473","573","413"], a: "473", f: "345 + 128 = 473" },
+  { q: "560 − 235 = ?", o: ["325","335","425","795"], a: "325", f: "560 − 235 = 325" },
+  { q: "42 × 4 = ?", o: ["162","46","168","148"], a: "168", f: "42 × 4 = 168" },
+  { q: "84 ÷ 2 = ?", o: ["44","40","168","42"], a: "42", f: "84 ÷ 2 = 42" },
+];
+
+const PROVA = [
+  { q: "A prova real da <b>adição</b> é feita com uma…", o: OPS, a: "Subtração", f: "adição se confere com subtração" },
+  { q: "A prova real da <b>multiplicação</b> é feita com uma…", o: OPS, a: "Divisão", f: "multiplicação se confere com divisão" },
+  { q: "A prova real da <b>subtração</b> é feita com uma…", o: OPS, a: "Adição", f: "subtração se confere com adição" },
+  { q: "A prova real da <b>divisão</b> é feita com uma…", o: OPS, a: "Multiplicação", f: "divisão se confere com multiplicação" },
+  { q: "345 + 128 = 473<br>Qual conta tira a <b>prova real</b>?", o: ["473 + 128 = 601","473 − 128 = 345","345 − 128 = 217","128 + 345 = 473"], a: "473 − 128 = 345", f: "o resultado menos uma parcela dá a outra parcela" },
+  { q: "560 − 235 = 325<br>Qual conta tira a <b>prova real</b>?", o: ["325 + 235 = 560","560 + 235 = 795","325 − 235 = 90","560 − 325 = 235"], a: "325 + 235 = 560", f: "resto + subtraendo = minuendo" },
+  { q: "42 × 4 = 168<br>Qual conta tira a <b>prova real</b>?", o: ["168 × 4 = 672","42 ÷ 4 = 10","168 − 4 = 164","168 ÷ 4 = 42"], a: "168 ÷ 4 = 42", f: "produto dividido pelo multiplicador dá o multiplicando" },
+  { q: "84 ÷ 2 = 42<br>Qual conta tira a <b>prova real</b>?", o: ["42 × 2 = 84","84 × 2 = 168","42 + 2 = 44","84 − 42 = 42"], a: "42 × 2 = 84", f: "quociente × divisor = dividendo" },
+];
+
+const TERMOS = [
+  { q: "15 + 10 = <b>25</b><br>O 25 é chamado de…", o: ["Parcela","Soma","Produto","Resto"], a: "Soma", f: "o resultado da adição é a soma (ou total)" },
+  { q: "<b>7</b> + <b>3</b> = 10<br>O 7 e o 3 são chamados de…", o: ["Fatores","Minuendos","Parcelas","Divisores"], a: "Parcelas", f: "os números que somamos são as parcelas" },
+  { q: "<b>20</b> − 8 = 12<br>O 20 é o…", o: ["Minuendo","Subtraendo","Dividendo","Produto"], a: "Minuendo", f: "o primeiro número da subtração é o minuendo" },
+  { q: "20 − <b>8</b> = 12<br>O 8 é o…", o: ["Minuendo","Divisor","Subtraendo","Parcela"], a: "Subtraendo", f: "o número que tiramos é o subtraendo" },
+  { q: "20 − 8 = <b>12</b><br>O 12 é o…", o: ["Soma","Resto ou diferença","Quociente","Produto"], a: "Resto ou diferença", f: "o resultado da subtração é o resto ou diferença" },
+  { q: "4 × 5 = <b>20</b><br>O 20 é chamado de…", o: ["Dividendo","Soma","Quociente","Produto"], a: "Produto", f: "o resultado da multiplicação é o produto" },
+  { q: "<b>4</b> × 5 = 20<br>O 4 é o…", o: ["Multiplicando","Multiplicador","Divisor","Parcela"], a: "Multiplicando", f: "o primeiro número da multiplicação é o multiplicando" },
+  { q: "4 × <b>5</b> = 20<br>O 5 é o…", o: ["Multiplicando","Dividendo","Multiplicador","Subtraendo"], a: "Multiplicador", f: "o segundo número da multiplicação é o multiplicador" },
+  { q: "<b>18</b> ÷ 3 = 6<br>O 18 é o…", o: ["Divisor","Dividendo","Produto","Quociente"], a: "Dividendo", f: "o número que é dividido é o dividendo" },
+  { q: "18 ÷ <b>3</b> = 6<br>O 3 é o…", o: ["Divisor","Dividendo","Multiplicador","Resto"], a: "Divisor", f: "o número que divide é o divisor" },
+  { q: "18 ÷ 3 = <b>6</b><br>O 6 é o…", o: ["Produto","Resto","Divisor","Quociente"], a: "Quociente", f: "o resultado da divisão é o quociente" },
+  { q: "Na divisão, o que <b>sobra</b> no final é o…", o: ["Resto","Quociente","Dividendo","Produto"], a: "Resto", f: "o que sobra é o resto — na divisão exata, o resto é 0" },
+];
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+const QUIZ = {
+  emoji: "🧮",
+  titleHtml: "Operações <span>e Prova Real!</span>",
+  sub: "Vamos revisar as contas, a prova real e os nomes dos termos das 4 operações!",
+  facts: ["➕ Contas", "✅ Prova real", "🏷️ Nomes dos termos"],
+  perfectMsg: "Perfeito! Você é craque nas 4 operações! 🧮",
+};
+
+const SECTIONS = [
+  mk("Calcule", CONTAS, { grid: true, transition: { emoji: "✅", sub: "Agora: como tirar a prova real?" } }),
+  mk("Prova real", PROVA, { transition: { emoji: "🏷️", sub: "Agora: os nomes dos termos de cada operação." } }),
+  mk("Nomes dos termos", TERMOS),
+];
+
+// ── ENGINE (compartilhado pelos quizzes T3) ───────────────────────────
+let sec = 0, cur = 0, score = 0, won = false, correctCount = 0;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+const card = (label, body = '') => `<div class="q-card"><div class="q-label">${label}</div>${body}</div>`;
+const qtext = t => `<div class="q-text">${t}</div>`;
+const bigWord = (t, size = 40) => `<div style="font-family:'Fredoka One',cursive;font-size:${size}px;text-align:center;margin:16px 0;color:#2563eb;line-height:1.2">${t}</div>`;
+
+function totalQuestions() { return SECTIONS.reduce((a, s) => a + s.items.length, 0); }
+function doneBefore(s) { let n = 0; for (let i = 0; i < s; i++) n += SECTIONS[i].items.length; return n; }
+
+function render() {
+  const S = SECTIONS[sec], item = S.items[cur];
+  const pct = Math.round((doneBefore(sec) + cur) / totalQuestions() * 100);
+  const opts = S.options(item).map(op =>
+    `<button class="opt-btn" data-op="${esc(op)}" onclick="clickOpt(this)">${op}</button>`).join('');
+  const last = cur === S.items.length - 1;
+  const nextLabel = last ? (sec === SECTIONS.length - 1 ? 'Ver resultado →' : 'Próxima parte →') : 'Próxima →';
+  const gridStyle = S.grid ? ' style="display:grid;grid-template-columns:1fr 1fr;gap:10px"' : '';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${S.label} ${cur + 1} de ${S.items.length}</div>
+    ${S.question(item)}
+    <div class="options"${gridStyle}>${opts}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">${nextLabel}</button>`;
+  if (typeof window !== 'undefined') window.scrollTo(0, 0);
+}
+
+function clickOpt(btn) {
+  if (won) return;
+  const S = SECTIONS[sec], item = S.items[cur];
+  if (btn.dataset.op === S.answer(item)) {
+    won = true; score += 10; correctCount++;
+    document.getElementById('score-val').textContent = score;
+    btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
+    const fb = document.getElementById('fb');
+    fb.className = 'feedback-panel show ok';
+    fb.innerHTML = `<div class="fb-header">${S.feedback(item)}</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextQ() {
+  cur++; won = false;
+  if (cur < SECTIONS[sec].items.length) { render(); return; }
+  if (sec < SECTIONS.length - 1) showTransition(); else showResult();
+}
+
+function showTransition() {
+  const t = SECTIONS[sec].transition;
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">${t.emoji}</span>
+        <div class="transition-title">Mandou bem!</div>
+        <div class="transition-sub">${t.sub}</div>
+      </div>
+      <button class="continue-btn" onclick="startSection()">Continuar →</button>
+    </div>`;
+}
+
+function startSection() { sec++; cur = 0; won = false; render(); }
+
+function showResult() {
+  const total = totalQuestions(), correct = correctCount;
+  let msg;
+  if (correct === total)           msg = QUIZ.perfectMsg;
+  else if (correct >= total * 0.8) msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= total * 0.6) msg = "Bom trabalho! Continue praticando! 📚";
+  else                             msg = "Continue tentando — você vai melhorar! 🌈";
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de ${total} questões!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+function startScreen() {
+  sec = 0; cur = 0; score = 0; won = false; correctCount = 0;
+  document.getElementById('score-val').textContent = 0;
+  const facts = QUIZ.facts.map(f => `<div class="start-fact">${f}</div>`).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">${QUIZ.emoji}</span>
+      <div class="start-title">${QUIZ.titleHtml}</div>
+      <div class="start-sub">${QUIZ.sub}</div>
+      <div class="start-facts">${facts}</div>
+      <button class="start-btn" onclick="render()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
