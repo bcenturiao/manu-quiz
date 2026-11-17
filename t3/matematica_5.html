@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz da Manu — Matemática: Dinheiro, Problemas e Tabelas</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #3b82f6;
+    --blue-dark: #2563eb;
+    --blue-light: #dbeafe;
+    --yellow-light: #fef9c3;
+    --bg: #fffbf0;
+    --card: #ffffff;
+    --text: #1e1b0e;
+    --text-soft: #6b7280;
+    --radius: 20px;
+    --radius-lg: 28px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    background: #bfdbfe;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -100px; left: -80px;
+    width: 360px; height: 360px;
+    background: #fde68a;
+    border-radius: 50%;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .logo {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: var(--blue-dark);
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--blue); }
+  .score-pill {
+    background: var(--blue-dark);
+    color: #fff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 50px;
+    height: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 10px;
+    background: linear-gradient(90deg, var(--blue), #93c5fd);
+    border-radius: 50px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 700;
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    border: 3px solid #e5e7eb;
+    margin-bottom: 14px;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-label {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .q-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .opt-btn {
+    background: #f9fafb;
+    border: 3px solid #e5e7eb;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: scale(1.02);
+  }
+  .opt-btn:active:not(:disabled) { transform: scale(0.97); }
+  .opt-btn:disabled { cursor: default; }
+
+  /* Feedback panel */
+  .feedback-panel {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-panel.show { display: block; }
+  .feedback-panel.ok  { background: #dcfce7; border: 2px solid #16a34a; }
+  .fb-header { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .feedback-panel.ok .fb-header { color: #15803d; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: 100%;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    margin-top: 4px;
+  }
+  .next-btn.show { display: block; animation: popIn 0.3s ease; }
+  .next-btn:hover { background: #15803d; transform: scale(1.02); }
+  .next-btn:active { transform: scale(0.98); }
+
+  /* Transition screen */
+  .transition-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .transition-banner {
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    color: #92400e;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .transition-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  .transition-title { font-family: 'Fredoka One', cursive; font-size: 24px; color: #92400e; margin-bottom: 8px; }
+  .transition-sub { font-family: 'Nunito', sans-serif; font-size: 14px; color: #92400e; line-height: 1.5; }
+  .continue-btn {
+    width: 100%;
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .continue-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .continue-btn:active { transform: scale(0.97); }
+
+  /* Result screen */
+  .result-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .result-trophy { font-size: 90px; display: block; margin-bottom: 12px; }
+  .result-title { font-family: 'Fredoka One', cursive; font-size: 30px; color: var(--blue-dark); margin-bottom: 6px; }
+  .result-count { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-soft); margin-bottom: 16px; }
+  .result-score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    border: 6px solid var(--blue);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .result-score-ring .big { font-family: 'Fredoka One', cursive; font-size: 42px; color: var(--blue-dark); line-height: 1; }
+  .result-score-ring .small { font-size: 13px; color: var(--blue-dark); font-weight: 700; }
+  .result-msg { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 28px; line-height: 1.4; }
+  .restart-btn {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .restart-btn:hover { background: var(--blue-dark); transform: scale(1.02); }
+  .restart-btn:active { transform: scale(0.97); }
+
+  /* Start screen */
+  .start-screen {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    text-align: center;
+    border: 3px solid #e5e7eb;
+    animation: popIn 0.4s ease;
+  }
+  .start-animal { font-size: 80px; display: block; margin-bottom: 8px; }
+  .start-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: var(--blue-dark); margin-bottom: 8px; }
+  .start-title span { color: var(--blue); }
+  .start-sub { font-size: 15px; color: var(--text-soft); font-weight: 600; margin-bottom: 28px; line-height: 1.5; font-family: 'Nunito', sans-serif; }
+  .start-facts { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; flex-wrap: wrap; }
+  .start-fact { background: var(--yellow-light); border-radius: var(--radius); padding: 10px 16px; font-size: 13px; font-weight: 700; color: #92400e; font-family: 'Nunito', sans-serif; }
+  .start-btn {
+    background: var(--blue-dark);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 20px 40px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .start-btn:hover { background: #1d4ed8; transform: scale(1.02); }
+  .start-btn:active { transform: scale(0.97); }
+
+  @media (max-width: 500px) {
+    .opt-btn { font-size: 15px; padding: 14px; }
+    .q-text { font-size: 15px; }
+  }
+  .q-text b { color: #2563eb; }
+  .q-label b { color: #2563eb; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="logo">Manu<span>Quiz</span> 💰</div>
+    <div class="score-pill" id="score-pill">
+      <span>⭐</span>
+      <span id="score-val">0</span> pts
+    </div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const mk = (label, items, extra = {}) => Object.assign({
+  label: label + " ·",
+  items,
+  question: it => card(label, qtext(it.q)),
+  options: it => it.o,
+  answer: it => it.a,
+  feedback: it => `✓ ${it.a} — ${it.f}.`,
+}, extra);
+
+// ── DESENHOS (SVG) ────────────────────────────────────────────────────
+const BLUE = "#3b82f6", INK = "#1e3a8a";
+const svgWrap = (inner, size = 170) => `<div style="text-align:center;margin:10px 0"><svg width="${size}" height="${size}" viewBox="0 0 200 200">${inner}</svg></div>`;
+const pt = (cx, cy, r, deg) => [cx + r * Math.sin(deg * Math.PI / 180), cy - r * Math.cos(deg * Math.PI / 180)];
+
+function clockSvg(h, m) {
+  let s = `<circle cx="100" cy="100" r="92" fill="#fff" stroke="${INK}" stroke-width="6"/>`;
+  for (let i = 1; i <= 12; i++) { const [x, y] = pt(100, 100, 72, i * 30); s += `<text x="${x}" y="${y + 7}" text-anchor="middle" font-size="20" font-weight="800" font-family="Nunito,sans-serif" fill="${INK}">${i}</text>`; }
+  for (let i = 0; i < 60; i++) { if (i % 5) { const [x1, y1] = pt(100, 100, 86, i * 6), [x2, y2] = pt(100, 100, 82, i * 6); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#94a3b8" stroke-width="2"/>`; } }
+  const [hx, hy] = pt(100, 100, 42, ((h % 12) + m / 60) * 30), [mx, my] = pt(100, 100, 64, m * 6);
+  s += `<line x1="100" y1="100" x2="${hx}" y2="${hy}" stroke="${INK}" stroke-width="9" stroke-linecap="round"/>`;
+  s += `<line x1="100" y1="100" x2="${mx}" y2="${my}" stroke="${BLUE}" stroke-width="5" stroke-linecap="round"/>`;
+  return svgWrap(s + `<circle cx="100" cy="100" r="7" fill="${INK}"/>`);
+}
+
+function fracSvg(shape, n, k) {
+  let s = "";
+  if (shape === "circle") {
+    for (let i = 0; i < n; i++) {
+      const [x1, y1] = pt(100, 100, 85, i * 360 / n), [x2, y2] = pt(100, 100, 85, (i + 1) * 360 / n);
+      s += `<path d="M100 100 L${x1} ${y1} A85 85 0 ${360 / n > 180 ? 1 : 0} 1 ${x2} ${y2} Z" fill="${i < k ? BLUE : "#fff"}" stroke="${INK}" stroke-width="3"/>`;
+    }
+  } else {
+    const w = 180 / n;
+    for (let i = 0; i < n; i++) s += `<rect x="${10 + i * w}" y="55" width="${w}" height="90" fill="${i < k ? BLUE : "#fff"}" stroke="${INK}" stroke-width="3"/>`;
+  }
+  return svgWrap(s);
+}
+
+function polySvg(n) {
+  const rot = n === 4 ? 45 : (n % 2 ? 0 : 180 / n);
+  const pts = Array.from({ length: n }, (_, i) => pt(100, 104, 80, rot + i * 360 / n).join(",")).join(" ");
+  return svgWrap(`<polygon points="${pts}" fill="#dbeafe" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>`, 150);
+}
+
+const fracHtml = (a, b) => `<div style="display:inline-flex;flex-direction:column;align-items:center;line-height:1.15"><span>${a}</span><span style="border-top:4px solid currentColor;padding:0 10px">${b}</span></div>`;
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const EXTENSO = [
+  { q: "Como se escreve <b>R$ 42,80</b> por extenso?", o: ["Quarenta e dois reais e oito centavos","Quarenta e dois reais e oitenta centavos","Quatrocentos e vinte e oito reais","Quarenta reais e vinte e oito centavos"], a: "Quarenta e dois reais e oitenta centavos", f: "42 reais e 80 centavos" },
+  { q: "Como se escreve <b>R$ 25,50</b> por extenso?", o: ["Vinte e cinco reais e cinco centavos","Duzentos e cinquenta e cinco reais","Vinte e cinco reais e cinquenta centavos","Vinte reais e cinquenta e cinco centavos"], a: "Vinte e cinco reais e cinquenta centavos", f: "25 reais e 50 centavos" },
+  { q: "Como se escreve <b>R$ 13,25</b> por extenso?", o: ["Treze reais e vinte e cinco centavos","Trinta reais e vinte e cinco centavos","Treze reais e dois centavos","Cento e trinta e dois reais"], a: "Treze reais e vinte e cinco centavos", f: "13 reais e 25 centavos" },
+  { q: "<b>Dezoito reais e quarenta centavos</b> se escreve…", o: ["R$ 18,04","R$ 184,00","R$ 81,40","R$ 18,40"], a: "R$ 18,40", f: "dezoito reais = 18, quarenta centavos = ,40" },
+];
+
+const CONTAS = [
+  { q: "R$ 25,50 + R$ 13,25 = ?", o: ["R$ 38,75","R$ 37,75","R$ 38,57","R$ 12,25"], a: "R$ 38,75", f: "25,50 + 13,25 = 38,75" },
+  { q: "R$ 50,00 − R$ 18,40 = ?", o: ["R$ 41,60","R$ 32,60","R$ 31,60","R$ 68,40"], a: "R$ 31,60", f: "50,00 − 18,40 = 31,60 (confira: 31,60 + 18,40 = 50,00)" },
+  { q: "R$ 4,50 × 3 = ?", o: ["R$ 12,50","R$ 13,50","R$ 7,50","R$ 13,05"], a: "R$ 13,50", f: "4,50 × 3 = 13,50" },
+  { q: "R$ 10,00 ÷ 2 = ?", o: ["R$ 5,00","R$ 50,00","R$ 0,50","R$ 8,00"], a: "R$ 5,00", f: "10,00 ÷ 2 = 5,00" },
+  { q: "Ao armar uma conta com dinheiro, a <b>vírgula</b> fica…", o: ["Em qualquer lugar","Só no resultado","Embaixo da outra vírgula","No começo do número"], a: "Embaixo da outra vírgula", f: "vírgula embaixo de vírgula, reais embaixo de reais e centavos embaixo de centavos" },
+];
+
+const PROBLEMAS = [
+  { q: "Pedro tem uma coleção com <b>145 figurinhas</b>. No aniversário, ganhou <b>68</b> do tio. Com quantas figurinhas ficou?", o: ["77","203","213","113"], a: "213", f: "145 + 68 = 213 figurinhas" },
+  { q: "Uma caixa tem <b>12 lápis</b> de cor. A professora comprou <b>6 caixas</b> iguais. Quantos lápis ela comprou?", o: ["72","18","62","66"], a: "72", f: "12 × 6 = 72 lápis" },
+  { q: "Dona Maria fez <b>36 brigadeiros</b> e quer dividir igualmente em <b>4 bandejas</b>. Quantos em cada bandeja?", o: ["8","40","32","9"], a: "9", f: "36 ÷ 4 = 9 brigadeiros" },
+  { q: "Ana tinha <b>R$ 20,00</b> e gastou <b>R$ 7,50</b>. Quanto sobrou?", o: ["R$ 13,50","R$ 27,50","R$ 12,50","R$ 13,00"], a: "R$ 12,50", f: "20,00 − 7,50 = 12,50" },
+];
+
+const TABELA_HTML = `<table style="margin:12px auto 0;border-collapse:collapse;font-size:16px;font-weight:700">
+  <tr style="background:#dbeafe"><th style="border:2px solid #93c5fd;padding:6px 12px">Brinquedo</th><th style="border:2px solid #93c5fd;padding:6px 12px">Vendidos</th></tr>
+  ${[["⚽ Bola",35],["🪆 Boneca",48],["🚗 Carrinho",52],["🧩 Quebra-cabeça",19]].map(([b, n]) => `<tr><td style="border:2px solid #93c5fd;padding:6px 12px;text-align:left">${b}</td><td style="border:2px solid #93c5fd;padding:6px 12px">${n}</td></tr>`).join("")}
+</table>`;
+
+const TABELA = [
+  { q: "Qual foi o brinquedo <b>mais vendido</b>?", o: ["Bola","Boneca","Carrinho","Quebra-cabeça"], a: "Carrinho", f: "o carrinho vendeu 52, o maior número da tabela" },
+  { q: "Qual foi a <b>diferença</b> de vendas entre o carrinho e a bola?", o: ["87","17","27","23"], a: "17", f: "52 − 35 = 17" },
+  { q: "Quantos brinquedos foram vendidos <b>no total</b>?", o: ["154","144","164","135"], a: "154", f: "35 + 48 + 52 + 19 = 154" },
+  { q: "Qual foi o brinquedo <b>menos vendido</b>?", o: ["Bola","Boneca","Carrinho","Quebra-cabeça"], a: "Quebra-cabeça", f: "o quebra-cabeça vendeu só 19" },
+  { q: "Quantas <b>bonecas</b> foram vendidas?", o: ["35","52","48","19"], a: "48", f: "a tabela mostra 48 bonecas" },
+];
+
+// ── QUIZ ──────────────────────────────────────────────────────────────
+const QUIZ = {
+  emoji: "💰",
+  titleHtml: "Dinheiro, Problemas <span>e Tabelas!</span>",
+  sub: "Vamos revisar o sistema monetário, resolver problemas e ler uma tabela!",
+  facts: ["✍️ Por extenso", "💰 Contas com dinheiro", "🧠 Problemas", "📊 Tabela"],
+  perfectMsg: "Perfeito! Você é ótima com dinheiro e problemas! 💰",
+};
+
+const SECTIONS = [
+  mk("Por extenso", EXTENSO, { transition: { emoji: "💰", sub: "Agora: contas com dinheiro (lembre-se da vírgula)!" } }),
+  mk("Contas com dinheiro", CONTAS, { transition: { emoji: "🧠", sub: "Agora: resolva os problemas com atenção!" } }),
+  mk("Problemas", PROBLEMAS, { transition: { emoji: "📊", sub: "Por fim: observe a tabela de brinquedos vendidos." } }),
+  Object.assign(mk("Tabela", TABELA), {
+    question: it => card("Brinquedos vendidos na semana", TABELA_HTML) + card("Pergunta", qtext(it.q)),
+    grid: true,
+  }),
+];
+
+// ── ENGINE (compartilhado pelos quizzes T3) ───────────────────────────
+let sec = 0, cur = 0, score = 0, won = false, correctCount = 0;
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+const card = (label, body = '') => `<div class="q-card"><div class="q-label">${label}</div>${body}</div>`;
+const qtext = t => `<div class="q-text">${t}</div>`;
+const bigWord = (t, size = 40) => `<div style="font-family:'Fredoka One',cursive;font-size:${size}px;text-align:center;margin:16px 0;color:#2563eb;line-height:1.2">${t}</div>`;
+
+function totalQuestions() { return SECTIONS.reduce((a, s) => a + s.items.length, 0); }
+function doneBefore(s) { let n = 0; for (let i = 0; i < s; i++) n += SECTIONS[i].items.length; return n; }
+
+function render() {
+  const S = SECTIONS[sec], item = S.items[cur];
+  const pct = Math.round((doneBefore(sec) + cur) / totalQuestions() * 100);
+  const opts = S.options(item).map(op =>
+    `<button class="opt-btn" data-op="${esc(op)}" onclick="clickOpt(this)">${op}</button>`).join('');
+  const last = cur === S.items.length - 1;
+  const nextLabel = last ? (sec === SECTIONS.length - 1 ? 'Ver resultado →' : 'Próxima parte →') : 'Próxima →';
+  const gridStyle = S.grid ? ' style="display:grid;grid-template-columns:1fr 1fr;gap:10px"' : '';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${S.label} ${cur + 1} de ${S.items.length}</div>
+    ${S.question(item)}
+    <div class="options"${gridStyle}>${opts}</div>
+    <div class="feedback-panel" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">${nextLabel}</button>`;
+  if (typeof window !== 'undefined') window.scrollTo(0, 0);
+}
+
+function clickOpt(btn) {
+  if (won) return;
+  const S = SECTIONS[sec], item = S.items[cur];
+  if (btn.dataset.op === S.answer(item)) {
+    won = true; score += 10; correctCount++;
+    document.getElementById('score-val').textContent = score;
+    btn.style.background = '#dcfce7'; btn.style.borderColor = '#16a34a';
+    const fb = document.getElementById('fb');
+    fb.className = 'feedback-panel show ok';
+    fb.innerHTML = `<div class="fb-header">${S.feedback(item)}</div>`;
+    document.getElementById('next-btn').className = 'next-btn show';
+    document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  } else {
+    btn.style.background = '#fee2e2'; btn.style.borderColor = '#ef4444'; btn.disabled = true;
+  }
+}
+
+function nextQ() {
+  cur++; won = false;
+  if (cur < SECTIONS[sec].items.length) { render(); return; }
+  if (sec < SECTIONS.length - 1) showTransition(); else showResult();
+}
+
+function showTransition() {
+  const t = SECTIONS[sec].transition;
+  document.getElementById('app').innerHTML = `
+    <div class="transition-screen">
+      <div class="transition-banner">
+        <span class="transition-emoji">${t.emoji}</span>
+        <div class="transition-title">Mandou bem!</div>
+        <div class="transition-sub">${t.sub}</div>
+      </div>
+      <button class="continue-btn" onclick="startSection()">Continuar →</button>
+    </div>`;
+}
+
+function startSection() { sec++; cur = 0; won = false; render(); }
+
+function showResult() {
+  const total = totalQuestions(), correct = correctCount;
+  let msg;
+  if (correct === total)           msg = QUIZ.perfectMsg;
+  else if (correct >= total * 0.8) msg = "Muito bem! Quase tudo certo! 💪";
+  else if (correct >= total * 0.6) msg = "Bom trabalho! Continue praticando! 📚";
+  else                             msg = "Continue tentando — você vai melhorar! 🌈";
+  document.getElementById('app').innerHTML = `
+    <div class="result-screen">
+      <span class="result-trophy">🏆</span>
+      <div class="result-title">Você foi incrível!</div>
+      <div class="result-count">Você acertou ${correct} de ${total} questões!</div>
+      <div class="result-score-ring">
+        <span class="big">${score}</span>
+        <span class="small">pontos</span>
+      </div>
+      <div class="result-msg">${msg}</div>
+      <button class="restart-btn" onclick="startScreen()">🔄 Jogar de novo</button>
+    </div>`;
+}
+
+function startScreen() {
+  sec = 0; cur = 0; score = 0; won = false; correctCount = 0;
+  document.getElementById('score-val').textContent = 0;
+  const facts = QUIZ.facts.map(f => `<div class="start-fact">${f}</div>`).join('');
+  document.getElementById('app').innerHTML = `
+    <div class="start-screen">
+      <span class="start-animal">${QUIZ.emoji}</span>
+      <div class="start-title">${QUIZ.titleHtml}</div>
+      <div class="start-sub">${QUIZ.sub}</div>
+      <div class="start-facts">${facts}</div>
+      <button class="start-btn" onclick="render()">Vamos começar! 🚀</button>
+    </div>`;
+}
+
+startScreen();
+</script>
+</body>
+</html>
